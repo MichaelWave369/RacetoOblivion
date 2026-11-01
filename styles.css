@@ -50,3 +50,13 @@ body.reduce-motion .orbit{animation:none}
 .archive-button:hover{background:#355763}
 .archive-button:focus-visible{outline:3px solid #ffefac;outline-offset:2px}
 @media(max-width:650px){.wrist-tabs button{font-size:10px;letter-spacing:0}}
+
+/* Rung 5: companion relationships and authored character investigations. */
+.relationship-panel{padding:14px 0;border-top:1px solid #536176}
+.relationship-panel h3{margin:0 0 8px;color:#e3bf8a;font:11px Consolas,monospace;letter-spacing:.13em}
+.relationship-panel p{color:#adc5c7;font:12px/1.5 Trebuchet MS,Arial,sans-serif;margin:0 0 9px}
+.relationship-panel button{display:block;width:100%;background:#243e49;color:#fae0b0;border:1px solid #b29a70;
+  padding:10px 12px;min-height:42px;font:11px Consolas,monospace;letter-spacing:.04em}
+.relationship-panel button:hover{background:#355365}
+.relationship-panel button:focus-visible{outline:3px solid #ffedbb}
+@media(max-width:1100px){.relationship-panel{grid-column:1/-1}}

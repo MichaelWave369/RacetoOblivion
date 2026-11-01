@@ -33,6 +33,16 @@ This file intentionally avoids late-story revelations. **Please keep major twist
 - [x] Migration tests, full module syntax checks, and deterministic combat rules.
 - [ ] Fully animated tactical battlefield and deeper replayability (future rung).
 
+## Rung 5: The Minds of Elsewhen
+- [x] Persistent trust and rapport tiers for Einstein, Tesla, and Lovelace.
+- [x] Three personal investigations integrated with existing collectible field evidence.
+- [x] Decision-sensitive reactions to completed dimensions.
+- [x] The Conclave, an accessible town forum with three once-only research debates and branching social outcomes.
+- [x] Two discoverable historical visitors: Marie Curie and Leonardo da Vinci (non-recruitable for now).
+- [x] Strong bonds improve select cooperative puzzle outcomes; no quest or debate can farm repeat rewards.
+- [x] Legacy save migration and deterministic social-system tests.
+- [ ] Fully recruitable new thinkers, character schedules, and deeper affinity arcs (future rungs).
+
 ## Engineering direction
 - Keep deterministic, separately tested game state.
 - Preserve the canonical Gen.E.Wrist 3/6/9 interaction model when integrating the shared project later.
