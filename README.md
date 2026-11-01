@@ -1,23 +1,38 @@
 # Race to Oblivion
 
-*A science-fantasy RPG about the minds that dared to save existence.*
-
 **The end of everything is only the beginning.**
 
-Explore **The Interval** and the extraordinary town of **Elsewhen**. Meet thinkers from across history, study unstable realities, and use a mysterious **Gen.E.Wrist** to investigate timelines on the verge of convergence.
+A science-fantasy RPG from Φ369 Labs. Enter **The Interval**, explore the town of **Elsewhen**, collaborate with brilliant minds drawn from history, and use the **Gen.E.Wrist** to investigate realities on the edge of collapse.
 
-## Development
+## Play the first prototype
 
-An original, open-source game in development at **Φ369 Labs**. The first playable browser prototype is being prepared in a feature branch.
+Open **index.html** in a modern browser, or publish the repository as a static site using GitHub Pages. No build, npm install, login or external services are required. You can also serve the root with any static HTTP server.
 
-- **Setting:** Elsewhen, a crossroads outside ordinary time.
-- **Role:** Michael Wave, a newly arrived traveler.
-- **Gameplay pillars:** exploration, dialogue, scientific puzzles, meaningful choices, and dimensional navigation.
-- **Design intent:** decisions have consequences; no single mind can solve every problem.
+**Note:** Because the game uses native JavaScript modules, browsers may block module imports when opening a file:// URL directly. The reliable way to play is through a local static server or GitHub Pages.
 
-The story is deliberately presented without late-game spoilers.
+- **Move:** WASD or arrow keys; on touchscreens use the on-screen D-pad, or tap a destination.
+- **Interact:** E, or the on-screen Interact button.
+- **Gen.E.Wrist:** G to focus the wrist readout.
+- **Journal:** J or the Journal button.
+- **Save:** automatic local browser storage; New Journey lets you reset.
 
-## License
+Meet Einstein, Tesla and Lovelace. Recruit each thinker, enter three dimensional fractures, and make decisions that change the equilibrium index and your journal.
 
-MIT. See [LICENSE](LICENSE) when the first development pull request is merged.
+## Development and tests
 
+Requires Node.js 20 or newer for tests only. No install step or third-party packages.
+
+    npm run check
+    npm test
+
+See [the spoiler-safe public roadmap](docs/ROADMAP.md).
+
+**Status:** Rung 1, browser-playable vertical slice. This is an early prototype, not a full campaign.
+
+## Creative and licensing notes
+
+This is an original fictional adventure inspired by historical thinkers. The scientific puzzles use speculative science-fiction rules and should not be mistaken for established physics. No third-party game characters, images, audio or trademarks are included.
+
+MIT licensed. See [LICENSE](LICENSE).
+
+*Φ369 Labs · People Above Profit · The Interval awaits.*

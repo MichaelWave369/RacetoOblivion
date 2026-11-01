@@ -1,0 +1,11 @@
+{
+  "name": "race-to-oblivion",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "A dependency-free, browser-playable science-fantasy RPG prototype",
+  "scripts": {
+    "test": "node --test",
+    "check": "node --check src/content.js && node --check src/state.js && node --check src/main.js"
+  }
+}

@@ -1,0 +1,75 @@
+import { thinkers, worlds } from "./content.js";
+
+export const SAVE_KEY = "rto-interval-rung01-v1";
+
+export function initialState() {
+  return {
+    version: 1,
+    scene: "elsewhen",
+    x: 480,
+    y: 458,
+    recruits: [],
+    completed: [],
+    choices: {},
+    stability: 64,
+    insight: 0,
+    log: ["Arrival: Elsewhen lies somewhere in The Interval."],
+    introSeen: false
+  };
+}
+
+export function clamp(value, min, max) {
+  return Math.max(min, Math.min(max, value));
+}
+
+export function recruit(state, id) {
+  const thinker = thinkers.find((entry) => entry.id === id);
+  if (!thinker || state.recruits.includes(id)) return state;
+  return { ...state, recruits: [...state.recruits, id], log: [...state.log, thinker.name + " joined your expedition."] };
+}
+
+export function travel(state, scene) {
+  if (scene !== "elsewhen" && !worlds.some((world) => world.id === scene)) return state;
+  return {
+    ...state,
+    scene,
+    x: 480,
+    y: scene === "elsewhen" ? 454 : 468,
+    log: [...state.log, scene === "elsewhen" ? "Returned to Elsewhen." : "Entered " + worlds.find((world) => world.id === scene).name + "."]
+  };
+}
+
+export function resolveFracture(state, worldId, choiceId) {
+  const world = worlds.find((entry) => entry.id === worldId);
+  if (!world || state.completed.includes(worldId) || !state.recruits.includes(world.needed)) return state;
+  const option = world.options.find((entry) => entry.id === choiceId);
+  if (!option) return state;
+  return {
+    ...state,
+    stability: clamp(state.stability + option.stability, 0, 100),
+    insight: state.insight + option.insight,
+    completed: [...state.completed, worldId],
+    choices: { ...state.choices, [worldId]: choiceId },
+    log: [...state.log, world.name + ": " + option.result]
+  };
+}
+
+export function restoreState(raw) {
+  const base = initialState();
+  if (!raw || raw.version !== 1 || !Array.isArray(raw.recruits) || !Array.isArray(raw.completed)) return base;
+  const validRecruits = thinkers.map((item) => item.id);
+  const validWorlds = worlds.map((item) => item.id);
+  return {
+    ...base,
+    scene: raw.scene === "elsewhen" || validWorlds.includes(raw.scene) ? raw.scene : "elsewhen",
+    x: Number.isFinite(raw.x) ? clamp(raw.x, 35, 925) : base.x,
+    y: Number.isFinite(raw.y) ? clamp(raw.y, 42, 525) : base.y,
+    recruits: [...new Set(raw.recruits.filter((id) => validRecruits.includes(id)))],
+    completed: [...new Set(raw.completed.filter((id) => validWorlds.includes(id)))],
+    choices: raw.choices && typeof raw.choices === "object" ? raw.choices : {},
+    stability: Number.isFinite(raw.stability) ? clamp(raw.stability, 0, 100) : base.stability,
+    insight: Number.isFinite(raw.insight) ? clamp(raw.insight, 0, 100000) : 0,
+    log: Array.isArray(raw.log) ? raw.log.filter((entry) => typeof entry === "string").slice(-50) : base.log,
+    introSeen: raw.introSeen === true
+  };
+}
