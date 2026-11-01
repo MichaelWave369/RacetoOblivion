@@ -6,6 +6,7 @@ import { createAmbientAudio } from "./audio.js";
 import { expeditionNodes } from "./expeditions.js";
 import { coreReady, nextObjective } from "./expedition-rules.js";
 import { createExpeditionUI } from "./expedition-ui.js";
+import { recordsForWorld, collectRecord, archiveSummary, totalRecords } from "./field-records.js";
 
 const canvas = document.querySelector("#world");
 const ctx = canvas.getContext("2d");
@@ -58,6 +59,13 @@ function showWristMode(mode) {
   updateWristIntel();
 }
 function updateWristIntel() {
+  if(wristMode==="archive"){
+    const summary=archiveSummary(state.records);
+    $("wrist-intel").textContent=summary.complete
+      ?"The field records form a constellation of unanswered questions. Every entry is now available for review."
+      :"Recovered "+summary.count+" of "+totalRecords+" field records. Follow the small amber signals on expedition maps.";
+    return;
+  }
   if(state.scene!=="elsewhen"){
     $("wrist-intel").textContent=nextObjective(state,state.scene);
     return;
@@ -122,8 +130,37 @@ function closeDialog() {
   canvas.focus({ preventScroll: true });
 }
 function showJournal() {
-  const entries = state.log.slice(-9).reverse().map((line, i) => String(i + 1).padStart(2, "0") + ". " + line);
-  showDialog("Field Journal", entries.join("\n\n") || "No entries yet.");
+  const entries=state.log.slice(-9).reverse().map((line,i)=>String(i+1).padStart(2,"0")+". "+line);
+  showDialog("Field Journal",entries.join("\n\n")||"No entries yet.");
+}
+function showRecord(record){
+  showDialog(record.title,record.text+"\n\n"+record.note,[
+    {label:"Back to field archive",action:showArchive},
+    {label:"Continue exploring",action:closeDialog}
+  ]);
+}
+function showArchive(){
+  const summary=archiveSummary(state.records);
+  const actions=summary.lines.map(record=>({
+    label:record.title,
+    action:()=>showRecord(record)
+  }));
+  actions.push({label:"Close archive",action:closeDialog});
+  showDialog("Gen.E.Wrist · Field Archive",
+    "Recovered "+summary.count+"/"+totalRecords+" field records.\n\n"+
+    (summary.complete
+      ?"CHRONICLE COMPLETE: These records describe different questions, but each points toward the same missing observation."
+      :"Records are scattered throughout the three realms. Their amber markers are visible on the expedition maps.")+
+    "\n\nCollected entries may be reread at any time.",
+    actions);
+}
+function exploreRecord(record){
+  const discovered=state.records?.includes(record.id);
+  if(!discovered)apply(collectRecord(state,record.id));
+  showDialog(record.title,
+    record.text+"\n\n"+record.note+
+    (discovered?"\n\nPreviously recovered.":"\n\nNEW FIELD RECORD · Insight +1"),
+    [{label:"Open Field Archive",action:showArchive},{label:"Continue expedition",action:closeDialog}]);
 }
 function updateReadout() {
   const scene = worlds.find((world) => world.id === state.scene);
@@ -135,6 +172,7 @@ function updateReadout() {
   $("stability-status").textContent = state.stability >= 75 ? "HARMONIC" : state.stability >= 40 ? "UNSTEADY" : "CRITICAL";
   $("insight").textContent = String(state.insight);
   $("completed").textContent = state.completed.length + " / 3";
+  $("archive-button").textContent="FIELD ARCHIVE · "+archiveSummary(state.records).count+" / "+totalRecords;
   updateQuest();
   updateWristIntel();
   const team=state.squad.map(id=>thinkers.find(t=>t.id===id)?.name).filter(Boolean);
@@ -163,6 +201,7 @@ function targetNear() {
     for(const node of expeditionNodes.filter(n=>n.id!=="core")){
       if(near(node.x,node.y,node.id==="echo"?62:64))return {kind:"stage",node};
     }
+    for(const record of recordsForWorld(state.scene))if(near(record.x,record.y,52))return {kind:"record",item:record};
     if(near(480,249,72))return {kind:"fracture",item:worlds.find(w=>w.id===state.scene)};
     if(near(480,498,61))return {kind:"exit"};
   }
@@ -203,6 +242,7 @@ function interact() {
   if(target.kind==="person"){speak(target.item);return;}
   if(target.kind==="landmark"){inspectLandmark(target.item);return;}
   if(target.kind==="stage"){exploreStage(target.node);return;}
+  if(target.kind==="record"){exploreRecord(target.item);return;}
   if(target.kind==="portal"){
     const world=target.item;
     showDialog(world.name,world.subtitle+"\n\n"+(state.completed.includes(world.id)
@@ -254,6 +294,7 @@ function prompt() {
     target.kind === "person" ? "E · SPEAK WITH " + target.item.name.toUpperCase() :
     target.kind === "portal" ? "E · ENTER " + target.item.name.toUpperCase() :
     target.kind === "stage" ? "E · INVESTIGATE " + target.node.label :
+    target.kind === "record" ? "E · READ FIELD RECORD" :
     target.kind === "fracture" ? "E · INVESTIGATE DIMENSIONAL FRACTURE" : target.kind === "landmark" ? "E · EXPLORE " + target.item.name.toUpperCase() : "E · RETURN TO ELSEWHEN";
   if (lastPrompt !== message) { $("prompt").textContent = message; lastPrompt=message; }
 }
@@ -302,7 +343,7 @@ function frame(t) {
   requestAnimationFrame(frame);
 }
 function cycleWrist() {
-  const tabs=["field","paths","roster"];
+  const tabs=["field","paths","roster","archive"];
   showWristMode(tabs[(tabs.indexOf(wristMode)+1)%tabs.length]);
   $("wrist").scrollIntoView({behavior:settings.motion?"auto":"smooth",block:"nearest"});
   $("wrist").classList.add("highlight");
@@ -334,6 +375,7 @@ for(const button of document.querySelectorAll("[data-direction]")){
 }
 $("touch-interact").addEventListener("click",interact);
 $("journal-button").addEventListener("click",showJournal);
+$("archive-button").addEventListener("click",showArchive);
 $("squad-button").addEventListener("click",manageSquad);
 $("close-dialog").addEventListener("click",closeDialog);
 $("reset-button").addEventListener("click",()=>{

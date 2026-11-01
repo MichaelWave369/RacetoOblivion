@@ -7,7 +7,7 @@ const START_HEALTH=8;
 const worldIds=worlds.map(w=>w.id);
 const thinkerIds=thinkers.map(t=>t.id);
 const limit=(value,min,max)=>Math.max(min,Math.min(max,value));
-export const freshProgress=()=>({survey:false,mechanism:false,echo:false,echoHealth:START_HEALTH,focus:MAX_FOCUS,turns:0});
+export const freshProgress=()=>({survey:false,mechanism:false,echo:false,echoHealth:START_HEALTH,focus:MAX_FOCUS,turns:0,lane:1});
 
 export function expeditionProgress(state,worldId){
   const current=state?.expeditions?.[worldId];
@@ -19,7 +19,8 @@ export function expeditionProgress(state,worldId){
     echo:current.echo===true,
     echoHealth:Number.isFinite(current.echoHealth)?limit(Math.floor(current.echoHealth),0,START_HEALTH):START_HEALTH,
     focus:Number.isFinite(current.focus)?limit(Math.floor(current.focus),0,MAX_FOCUS):MAX_FOCUS,
-    turns:Number.isFinite(current.turns)?limit(Math.floor(current.turns),0,10000):0
+    turns:Number.isFinite(current.turns)?limit(Math.floor(current.turns),0,10000):0,
+    lane:Number.isInteger(current.lane)?limit(current.lane,0,2):1
   };
 }
 export function validateExpeditions(raw){
@@ -34,7 +35,8 @@ export function validateExpeditions(raw){
       echo:p.echo,
       echoHealth:p.echo?0:p.echoHealth,
       focus:p.focus,
-      turns:p.turns
+      turns:p.turns,
+      lane:p.lane
     };
   }
   return output;

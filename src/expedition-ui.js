@@ -1,6 +1,7 @@
 import { thinkers, worlds } from "./content.js";
 import { expeditions } from "./expeditions.js";
-import { toggleSquadMember, expeditionProgress, surveySite, solveMechanism, availableMoves, strikeEcho, recoverFocus, nextObjective } from "./expedition-rules.js";
+import { toggleSquadMember, expeditionProgress, surveySite, solveMechanism, availableMoves, recoverFocus } from "./expedition-rules.js";
+import { laneNames, tacticalView, tacticalStrike, tacticalShift } from "./echo-tactics.js";
 
 // UI adapter: this module owns no state. It asks main.js for the current state
 // on every interaction, so actions never operate on stale save snapshots.
@@ -86,11 +87,16 @@ export function createExpeditionUI({getState,apply,showDialog,closeDialog}){
     const state=getState(),id=state.scene,data=expeditions[id],p=expeditionProgress(state,id);
     if(!data)return;
     if(p.echo){showDialog("Echo Quieted",data.victory);return;}
-    const actions=availableMoves(state,id).filter(move=>p.focus>=move.cost).map(move=>({
+    const view=tacticalView(state,id);
+    const laneDisplay=laneNames.map((lane,i)=>{
+      const position=i===view.lane?"◆ TEAM":"· EMPTY";
+      return lane.padEnd(8," ")+" "+position+(i===view.threat?"  ⚠ INCOMING":"");
+    }).join("\n");
+    const actions=availableMoves(state,id).filter(move=>view.focus>=move.cost).map(move=>({
       label:move.label+" · "+move.cost+" focus / "+move.damage+" power",
       action:()=>{
         const before=getState();
-        apply(strikeEcho(before,id,move.id));
+        apply(tacticalStrike(before,id,move.id));
         const current=getState(),updated=expeditionProgress(current,id);
         if(before===current){showEncounter();return;}
         if(updated.echo){
@@ -99,22 +105,31 @@ export function createExpeditionUI({getState,apply,showDialog,closeDialog}){
           ]);
         }else{
           showDialog(move.label+" · Echo "+updated.echoHealth+" HP",
-            "The echo recoils. Its returning wave disturbs the equilibrium.\n\nFocus: "+
-            updated.focus+" / 4 · Balance: "+current.stability+"%",[
-              {label:"Next move",action:showEncounter},
+            "The echo recoils.\n\n"+current.log.slice(-1)[0]+
+            "\n\nFocus: "+updated.focus+" / 4 · Balance: "+current.stability+"%",[
+              {label:"Next tactical turn",action:showEncounter},
               {label:"Retreat",action:closeDialog}
             ]);
         }
       }
     }));
-    if(p.focus<4)actions.push({label:"Regroup · recover 2 focus (−1 balance)",action:()=>{
+    if(view.lane>0)actions.push({
+      label:"Sidestep LEFT · +1 focus",
+      action:()=>{apply(tacticalShift(getState(),id,-1));showEncounter();}
+    });
+    if(view.lane<2)actions.push({
+      label:"Sidestep RIGHT · +1 focus",
+      action:()=>{apply(tacticalShift(getState(),id,1));showEncounter();}
+    });
+    if(p.focus<4)actions.push({label:"Regroup · +2 focus / −1 balance",action:()=>{
       apply(recoverFocus(getState(),id));
       showEncounter();
     }});
     actions.push({label:"Retreat",action:closeDialog});
-    showDialog(data.enemy+" · "+p.echoHealth+" HP",
-      data.enemyText+"\n\nFocus: "+p.focus+" / 4 · Turns: "+p.turns+
-      "\n\nAttacks that do not finish the echo cost equilibrium. Two geniuses can coordinate for a stronger move.",
+    showDialog(data.enemy+" · "+view.health+" HP",
+      data.enemyText+"\n\nROUND "+view.round+" · FOCUS "+view.focus+"/4"+
+      "\n\n"+laneDisplay+
+      "\n\nThe echo telegraphs its next strike. Sidestep to a safer lane, then launch your strongest coordinated attack. An unfinished attack costs equilibrium; taking a telegraphed hit costs more.",
       actions);
   }
   return {manageSquad,exploreStage};
