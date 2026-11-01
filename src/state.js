@@ -1,6 +1,7 @@
 import { thinkers, worlds } from "./content.js";
 import { validateExpeditions, validateSquad } from "./expedition-rules.js";
 import { validateRecords } from "./field-records.js";
+import { initialSocial, validateSocial } from "./relationships.js";
 
 export const SAVE_KEY = "rto-interval-rung01-v1";
 
@@ -20,6 +21,7 @@ export function initialState() {
     squad: [],
     expeditions: {},
     records: [],
+    social: initialSocial(),
     log: ["Arrival: Elsewhen lies somewhere in The Interval."],
     introSeen: false
   };
@@ -95,6 +97,7 @@ export function restoreState(raw) {
     squad: validateSquad(raw.squad,raw.recruits.filter((id) => validRecruits.includes(id))),
     expeditions: validateExpeditions(raw.expeditions),
     records: validateRecords(raw.records),
+    social: validateSocial(raw.social),
     stability: Number.isFinite(raw.stability) ? clamp(raw.stability, 0, 100) : base.stability,
     insight: Number.isFinite(raw.insight) ? clamp(raw.insight, 0, 100000) : 0,
     log: Array.isArray(raw.log) ? raw.log.filter((entry) => typeof entry === "string").slice(-50) : base.log,

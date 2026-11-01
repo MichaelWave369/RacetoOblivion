@@ -1,5 +1,6 @@
 import { thinkers, worlds } from "./content.js";
 import { expeditions, encounterMoves } from "./expeditions.js";
+import { rapportBonus } from "./relationships.js";
 
 export const MAX_SQUAD=3;
 const MAX_FOCUS=4;
@@ -79,8 +80,9 @@ export function solveMechanism(state,worldId,solutionId){
   const solution=expeditions[worldId].solutions.find(x=>x.id===solutionId);
   if(!solution||!solution.requires.every(id=>state.squad.includes(id)))return state;
   if(solution.correct&&!state.squad.includes(worlds.find(w=>w.id===worldId).needed))return state;
+  const bonus=solution.correct&&solution.id==="synergy"?rapportBonus(state,solution.requires):0;
   return updateProgress(state,worldId,solution.correct?{...p,mechanism:true}:p,
-    solution.result,solution.stability,solution.insight);
+    solution.result+(bonus?" Shared trust strengthens the result.":""),solution.stability+bonus,solution.insight);
 }
 export function availableMoves(state,worldId){
   if(!validUnfinished(state,worldId))return [];

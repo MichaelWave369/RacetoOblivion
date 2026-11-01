@@ -1,4 +1,5 @@
 import { thinkers, worlds } from "./content.js";
+import { visitors, conclave, trustFor } from "./relationships.js";
 import { drawExpeditionArt } from "./expedition-art.js";
 
 // Original, deterministic Canvas artwork. No image downloads, CDN calls, or
@@ -226,6 +227,25 @@ function town(c,state,t){
     text(c,person.name,person.x,person.y-56,12,person.color);
   }
   drawResidents(c,t);
+  // The Conclave is a public forum, not another portal. Its discussions change
+  // after the player resolves an expedition.
+  ellipse(c,conclave.x,conclave.y+15,34,11,"#071621a0");
+  disk(c,conclave.x,conclave.y,24,"#19364b","#d8b47b",2);
+  disk(c,conclave.x,conclave.y,15,"#2c5062","#9ddad4",1);
+  text(c,"✦",conclave.x,conclave.y,20,"#ffe6aa");
+  text(c,"THE CONCLAVE",conclave.x,conclave.y-43,11,"#f8d4a1");
+  if(state.completed.length)disk(c,conclave.x+23,conclave.y-26,4,"#9ef8d0");
+  for(const visitor of visitors){
+    painter(c,visitor.x,visitor.y,visitor.id==="curie"?"#597b74":"#86664c",visitor.color,Math.sin(t/340+visitor.x));
+    text(c,visitor.name,visitor.x,visitor.y-53,12,visitor.color);
+    if(state.social?.visitors?.includes(visitor.id))disk(c,visitor.x+22,visitor.y-35,3,"#a0f2bc");
+  }
+  // A quiet visual reward for allies who have earned Michael's confidence.
+  for(const person of thinkers){
+    if(trustFor(state,person.id)>=2){
+      disk(c,person.x-20,person.y-43,4,"#a1ffca");
+    }
+  }
   text(c,"THE OBSERVATORY",96,503,10,"#c8d6d8");
   text(c,"THE ATELIER",869,504,10,"#c8d6d8");
 }

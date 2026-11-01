@@ -7,6 +7,8 @@ import { expeditionNodes } from "./expeditions.js";
 import { coreReady, nextObjective } from "./expedition-rules.js";
 import { createExpeditionUI } from "./expedition-ui.js";
 import { recordsForWorld, collectRecord, archiveSummary, totalRecords } from "./field-records.js";
+import { visitors, conclave, socialSummary, validateSocial } from "./relationships.js";
+import { createSocialUI } from "./social-ui.js";
 
 const canvas = document.querySelector("#world");
 const ctx = canvas.getContext("2d");
@@ -89,7 +91,7 @@ function updateQuest() {
   }
   const notRecruited=thinkers.filter(p=>!state.recruits.includes(p.id));
   const unresolved=worlds.filter(w=>!state.completed.includes(w.id));
-  if(state.completed.length===worlds.length)$("quest-status").textContent="Return to the clock tower. A new question remains unanswered.";
+  if(state.completed.length===worlds.length)$("quest-status").textContent="Visit the Conclave and help the minds compare what you discovered.";
   else if(notRecruited.length)$("quest-status").textContent="Meet "+notRecruited.map(p=>p.name).join(", ")+".";
   else $("quest-status").textContent="Investigate "+unresolved.map(w=>w.name).join(", ")+".";
 }
@@ -173,6 +175,13 @@ function updateReadout() {
   $("insight").textContent = String(state.insight);
   $("completed").textContent = state.completed.length + " / 3";
   $("archive-button").textContent="FIELD ARCHIVE · "+archiveSummary(state.records).count+" / "+totalRecords;
+  const social=socialSummary(state);
+  $("relationship-button").textContent="THE MINDS · "+social.filter(p=>p.quest==="completed").length+" / 3 INQUIRIES";
+  $("relationship-status").textContent=social.filter(p=>p.quest==="ready").length
+    ?"A companion has evidence to review. Return to their home in Elsewhen."
+    :social.filter(p=>p.quest==="active").length
+      ?"Personal inquiries underway. Seek the matching field records."
+      :"Trust grows through shared research and thoughtful debate.";
   updateQuest();
   updateWristIntel();
   const team=state.squad.map(id=>thinkers.find(t=>t.id===id)?.name).filter(Boolean);
@@ -186,7 +195,7 @@ function updateReadout() {
     const name = document.createElement("span");
     name.textContent = person.name;
     const status = document.createElement("small");
-    status.textContent = state.recruits.includes(person.id) ? "RECRUITED" : "IN TOWN";
+    status.textContent = state.recruits.includes(person.id) ? social.find(s=>s.id===person.id).trust+"/6 TRUST" : "IN TOWN";
     row.append(name, status);
     roster.append(row);
   }
@@ -196,6 +205,8 @@ function targetNear() {
   if(state.scene==="elsewhen"){
     for(const person of thinkers)if(near(person.x,person.y,65))return {kind:"person",item:person};
     for(const world of worlds)if(near(world.x,world.y,76))return {kind:"portal",item:world};
+    for(const visitor of visitors)if(near(visitor.x,visitor.y,57))return {kind:"visitor",item:visitor};
+    if(near(conclave.x,conclave.y,62))return {kind:"conclave"};
     for(const landmark of landmarks)if(near(landmark.x,landmark.y,54))return {kind:"landmark",item:landmark};
   }else{
     for(const node of expeditionNodes.filter(n=>n.id!=="core")){
@@ -207,27 +218,9 @@ function targetNear() {
   }
   return null;
 }
-function speak(person) {
-  const has=state.recruits.includes(person.id);
-  const topics=[
-    ["Ask about the Interval","interval"],
-    ["Ask about their research","work"],
-    ["Discuss the cost of choices","consequences"]
-  ];
-  const actions=topics.map(([label,topic])=>({label,action:()=>{
-    apply(discuss(state,person.id,topic));
-    showDialog(person.name+" · "+person.role,conversations[person.id][topic],[
-      {label:"Ask another question",action:()=>speak(person)},
-      {label:"Return to town",action:closeDialog}
-    ]);
-  }}));
-  if(!has)actions.push({label:"Invite to the expedition",action:()=>{
-    apply(recruit(state,person.id));showDialog(person.name,person.join);
-  }});
-  actions.push({label:"Leave",action:closeDialog});
-  showDialog(person.name+" · "+person.role,
-    person.lines+(has?"\n\nThe expedition has their support.":""),actions);
-}
+const {talkToThinker,greetVisitor,showRelationships,showConclave}=createSocialUI({
+  getState:()=>state,apply,showDialog,closeDialog
+});
 function inspectLandmark(item) {
   const discovered=state.observed.includes(item.id);
   const after=state.completed.length?item.after:item.description;
@@ -239,7 +232,9 @@ function interact() {
   if(open)return;
   const target=targetNear();
   if(!target)return;
-  if(target.kind==="person"){speak(target.item);return;}
+  if(target.kind==="person"){talkToThinker(target.item);return;}
+  if(target.kind==="visitor"){greetVisitor(target.item);return;}
+  if(target.kind==="conclave"){showConclave();return;}
   if(target.kind==="landmark"){inspectLandmark(target.item);return;}
   if(target.kind==="stage"){exploreStage(target.node);return;}
   if(target.kind==="record"){exploreRecord(target.item);return;}
@@ -292,6 +287,8 @@ function prompt() {
   const target=targetNear();
   const message = !target ? "Explore with WASD / arrows, E to interact, G for Gen.E.Wrist." :
     target.kind === "person" ? "E · SPEAK WITH " + target.item.name.toUpperCase() :
+    target.kind === "visitor" ? "E · MEET " + target.item.name.toUpperCase() :
+    target.kind === "conclave" ? "E · ENTER THE CONCLAVE" :
     target.kind === "portal" ? "E · ENTER " + target.item.name.toUpperCase() :
     target.kind === "stage" ? "E · INVESTIGATE " + target.node.label :
     target.kind === "record" ? "E · READ FIELD RECORD" :
@@ -376,6 +373,7 @@ for(const button of document.querySelectorAll("[data-direction]")){
 $("touch-interact").addEventListener("click",interact);
 $("journal-button").addEventListener("click",showJournal);
 $("archive-button").addEventListener("click",showArchive);
+$("relationship-button").addEventListener("click",showRelationships);
 $("squad-button").addEventListener("click",manageSquad);
 $("close-dialog").addEventListener("click",closeDialog);
 $("reset-button").addEventListener("click",()=>{
