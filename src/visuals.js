@@ -1,4 +1,5 @@
 import { thinkers, worlds } from "./content.js";
+import { drawExpeditionArt } from "./expedition-art.js";
 
 // Original, deterministic Canvas artwork. No image downloads, CDN calls, or
 // game-engine dependencies. World coordinates are shared with navigation.js.
@@ -294,7 +295,7 @@ export function drawWorld(ctx,state,t,{moving=false,facing="right"}={}){
   if(state.scene==="elsewhen")town(ctx,state,t);
   else {
     const world=worlds.find((entry)=>entry.id===state.scene);
-    if(world)worldBackdrop(ctx,world,t,state);
+    if(world){worldBackdrop(ctx,world,t,state);drawExpeditionArt(ctx,state,t);}
   }
   player(ctx,state,t,moving,facing);
   ctx.restore();

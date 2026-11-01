@@ -3,6 +3,9 @@ import { SAVE_KEY, initialState, restoreState, recruit, travel, resolveFracture,
 import { drawWorld } from "./visuals.js";
 import { stepPosition } from "./navigation.js";
 import { createAmbientAudio } from "./audio.js";
+import { expeditionNodes } from "./expeditions.js";
+import { coreReady, nextObjective } from "./expedition-rules.js";
+import { createExpeditionUI } from "./expedition-ui.js";
 
 const canvas = document.querySelector("#world");
 const ctx = canvas.getContext("2d");
@@ -55,6 +58,10 @@ function showWristMode(mode) {
   updateWristIntel();
 }
 function updateWristIntel() {
+  if(state.scene!=="elsewhen"){
+    $("wrist-intel").textContent=nextObjective(state,state.scene);
+    return;
+  }
   if(wristMode==="field") {
     $("wrist-intel").textContent=state.stability>=80
       ? "The Interval is breathing more easily. Every correction leaves an echo."
@@ -64,18 +71,20 @@ function updateWristIntel() {
   } else if(wristMode==="paths"){
     $("wrist-intel").textContent=worlds.map(w=>(state.completed.includes(w.id)?"✓ ":"◇ ")+w.name).join(" · ");
   } else {
-    $("wrist-intel").textContent=thinkers.map(p=>(state.recruits.includes(p.id)?"✓ ":"◇ ")+p.name).join(" · ");
+    $("wrist-intel").textContent=thinkers.map(p=>(state.squad.includes(p.id)?"✧ ":state.recruits.includes(p.id)?"✓ ":"◇ ")+p.name).join(" · ");
   }
 }
 function updateQuest() {
+  if(state.scene!=="elsewhen"){
+    $("quest-status").textContent=nextObjective(state,state.scene);
+    return;
+  }
   const notRecruited=thinkers.filter(p=>!state.recruits.includes(p.id));
   const unresolved=worlds.filter(w=>!state.completed.includes(w.id));
-  if(state.completed.length===worlds.length) $("quest-status").textContent="Return to the clock tower. A new question remains unanswered.";
-  else if(notRecruited.length) $("quest-status").textContent="Meet "+notRecruited.map(p=>p.name).join(", ")+".";
+  if(state.completed.length===worlds.length)$("quest-status").textContent="Return to the clock tower. A new question remains unanswered.";
+  else if(notRecruited.length)$("quest-status").textContent="Meet "+notRecruited.map(p=>p.name).join(", ")+".";
   else $("quest-status").textContent="Investigate "+unresolved.map(w=>w.name).join(", ")+".";
 }
-
-
 function load() {
   try { return restoreState(JSON.parse(localStorage.getItem(SAVE_KEY))); }
   catch { return initialState(); }
@@ -119,7 +128,7 @@ function showJournal() {
 function updateReadout() {
   const scene = worlds.find((world) => world.id === state.scene);
   $("location").textContent = scene ? scene.name : "Elsewhen";
-  $("chapter").textContent = state.completed.length === 3 ? "CHAPTER 01 · OBSERVATION" : "CHAPTER 01 · ARRIVAL";
+  $("chapter").textContent = state.scene !== "elsewhen" ? "CHAPTER 02 · EXPEDITION" : state.completed.length === 3 ? "CHAPTER 01 · OBSERVATION" : "CHAPTER 01 · ARRIVAL";
   $("progress").textContent = state.completed.length + " / 3 FRACTURES";
   $("stability-value").textContent = state.stability + "%";
   $("stability-meter").style.width = state.stability + "%";
@@ -128,6 +137,9 @@ function updateReadout() {
   $("completed").textContent = state.completed.length + " / 3";
   updateQuest();
   updateWristIntel();
+  const team=state.squad.map(id=>thinkers.find(t=>t.id===id)?.name).filter(Boolean);
+  $("squad-status").textContent=team.length?team.join(" · "):"Recruit minds to assemble your expedition squad.";
+  $("squad-button").textContent="MANAGE SQUAD · "+team.length+" / 3";
   const roster = $("roster");
   roster.replaceChildren();
   for (const person of thinkers) {
@@ -148,8 +160,11 @@ function targetNear() {
     for(const world of worlds)if(near(world.x,world.y,76))return {kind:"portal",item:world};
     for(const landmark of landmarks)if(near(landmark.x,landmark.y,54))return {kind:"landmark",item:landmark};
   }else{
-    if(near(480,249,84))return {kind:"fracture",item:worlds.find(w=>w.id===state.scene)};
-    if(near(480,498,72))return {kind:"exit"};
+    for(const node of expeditionNodes.filter(n=>n.id!=="core")){
+      if(near(node.x,node.y,node.id==="echo"?62:64))return {kind:"stage",node};
+    }
+    if(near(480,249,72))return {kind:"fracture",item:worlds.find(w=>w.id===state.scene)};
+    if(near(480,498,61))return {kind:"exit"};
   }
   return null;
 }
@@ -180,12 +195,14 @@ function inspectLandmark(item) {
   apply(observe(state,item.id));
   showDialog(item.name,after+"\n\n"+(discovered?"You recognize this place.":"NEW FIELD NOTE · Insight +1"));
 }
+const {manageSquad,exploreStage}=createExpeditionUI({getState:()=>state,apply,showDialog,closeDialog});
 function interact() {
   if(open)return;
   const target=targetNear();
   if(!target)return;
   if(target.kind==="person"){speak(target.item);return;}
   if(target.kind==="landmark"){inspectLandmark(target.item);return;}
+  if(target.kind==="stage"){exploreStage(target.node);return;}
   if(target.kind==="portal"){
     const world=target.item;
     showDialog(world.name,world.subtitle+"\n\n"+(state.completed.includes(world.id)
@@ -202,6 +219,9 @@ function interact() {
     if(state.completed.includes(world.id)){
       showDialog(world.name,"Your decision has already shaped this reality.\n\n"+state.log.findLast(entry=>entry.startsWith(world.name+":")));
       return;
+    }
+    if(!coreReady(state,world.id)){
+      showDialog("Equilibrium Core · Sealed",nextObjective(state,world.id));return;
     }
     const thinker=thinkers.find(person=>person.id===world.needed);
     if(!state.recruits.includes(world.needed)){
@@ -233,6 +253,7 @@ function prompt() {
   const message = !target ? "Explore with WASD / arrows, E to interact, G for Gen.E.Wrist." :
     target.kind === "person" ? "E · SPEAK WITH " + target.item.name.toUpperCase() :
     target.kind === "portal" ? "E · ENTER " + target.item.name.toUpperCase() :
+    target.kind === "stage" ? "E · INVESTIGATE " + target.node.label :
     target.kind === "fracture" ? "E · INVESTIGATE DIMENSIONAL FRACTURE" : target.kind === "landmark" ? "E · EXPLORE " + target.item.name.toUpperCase() : "E · RETURN TO ELSEWHEN";
   if (lastPrompt !== message) { $("prompt").textContent = message; lastPrompt=message; }
 }
@@ -313,6 +334,7 @@ for(const button of document.querySelectorAll("[data-direction]")){
 }
 $("touch-interact").addEventListener("click",interact);
 $("journal-button").addEventListener("click",showJournal);
+$("squad-button").addEventListener("click",manageSquad);
 $("close-dialog").addEventListener("click",closeDialog);
 $("reset-button").addEventListener("click",()=>{
   showDialog("Begin Again?", "This will erase your local journey, recruited minds, and choices.",[

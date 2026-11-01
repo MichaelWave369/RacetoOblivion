@@ -6,6 +6,6 @@
   "description": "A dependency-free, browser-playable science-fantasy RPG prototype",
   "scripts": {
     "test": "node --test",
-    "check": "node --check src/content.js && node --check src/state.js && node --check src/main.js"
+    "check": "node --check src/content.js && node --check src/state.js && node --check src/main.js && node --check src/expedition-ui.js"
   }
 }
