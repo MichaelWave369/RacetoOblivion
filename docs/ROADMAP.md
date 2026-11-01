@@ -19,10 +19,11 @@ This file intentionally avoids late-story revelations. **Please keep major twist
 - [ ] Equipment and inventory (future rung).
 
 ## Rung 3: The first larger expedition
-- [ ] Distinct explorable maps for each dimension.
-- [ ] Character ability combinations and three-person squads.
-- [ ] Tactical encounters and scientific puzzle chains.
-- [ ] Authored quests, consequences and replayable challenges.
+- [x] Three independently themed maps with a multi-stop authored expedition loop (survey, mechanism, encounter, core).
+- [x] Configurable three-genius squad and cooperative approaches to each puzzle.
+- [x] Deterministic turn-based echo encounters with focus, health and cumulative pressure; scenario-specific scientific puzzles.
+- [x] Contextual four-step expedition objectives, persistent choice consequences and revisitable stabilized worlds.
+- [ ] Deeper replayable boss fights, turn grid combat and authored multi-map questlines (future work).
 
 ## Engineering direction
 - Keep deterministic, separately tested game state.
