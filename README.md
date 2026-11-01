@@ -14,9 +14,11 @@ Open **index.html** in a modern browser, or publish the repository as a static s
 - **Interact:** E, or the on-screen Interact button.
 - **Gen.E.Wrist:** G to focus the wrist readout.
 - **Journal:** J or the Journal button.
+- **Gamepad:** Left stick/D-pad to move, A to interact, B for journal, Y to cycle wrist modes. Controller support is best-effort across browsers.
+- **Options:** Opt-in audio, reduce motion and high contrast in the Gen.E.Wrist panel.
 - **Save:** automatic local browser storage; New Journey lets you reset.
 
-Meet Einstein, Tesla and Lovelace. Recruit each thinker, enter three dimensional fractures, and make decisions that change the equilibrium index and your journal.
+Explore an animated town with living skies, clockwork architecture, a changing equilibrium atmosphere, original ambient audio (opt-in), spatial collision, and a field journal. Discover observatory, fountain and atelier details; speak with the minds about their work and the consequences of choices. Meet Einstein, Tesla and Lovelace. Recruit each thinker, enter three dimensional fractures, and make decisions that change the equilibrium index and your journal.
 
 ## Development and tests
 
@@ -27,7 +29,7 @@ Requires Node.js 20 or newer for tests only. No install step or third-party pack
 
 See [the spoiler-safe public roadmap](docs/ROADMAP.md).
 
-**Status:** Rung 1, browser-playable vertical slice. This is an early prototype, not a full campaign.
+**Status:** Rung 2, Elsewhen Alive prototype. This is an early browser-playable slice, not a full campaign.
 
 ## Creative and licensing notes
 

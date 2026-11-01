@@ -11,11 +11,12 @@ This file intentionally avoids late-story revelations. **Please keep major twist
 - [x] Node test suite and GitHub Actions checks.
 
 ## Rung 2: Make Elsewhen alive
-- [ ] Collision-aware tiled environments and animated characters.
-- [ ] Character dialogue trees, friendship and different solution paths.
-- [ ] World-state reactions to earlier choices.
-- [ ] More landmarks, town inhabitants, ambient soundtrack and accessibility options.
-- [ ] Quest-tracking, equipment and controller support.
+- [x] Collision-aware town geometry and hand-drawn animated characters (fully tiled art is future work).
+- [x] Character topic dialogues and first-discussion insight; deeper friendship arcs remain future work.
+- [x] Equilibrium-based sky, portal completion and landmark reactions.
+- [x] Observatory, atelier, fountain, roaming townsfolk, original opt-in ambient audio, reduced-motion/high-contrast options.
+- [x] Contextual quest hints, Gen.E.Wrist tabs and browser gamepad support.
+- [ ] Equipment and inventory (future rung).
 
 ## Rung 3: The first larger expedition
 - [ ] Distinct explorable maps for each dimension.

@@ -35,3 +35,42 @@ export const worlds = [
 ];
 
 export const intro = "You arrived in Elsewhen with a device on your wrist and a name you remember: Michael Wave.\n\nThree fractures are spreading through The Interval. The greatest minds of different centuries are gathered here, but none can solve every problem alone.\n\nMove through town, invite the thinkers to join you, and investigate each portal. Be careful: a faster solution is not always a better one.";
+
+
+// Public-facing character encounters. Every conversation can be replayed;
+// the first exploration of a topic awards one insight.
+export const conversations = {
+  einstein: {
+    interval: "Elsewhen is full of convincing clocks. None of them agree. Perhaps time is less like a river and more like a conversation.",
+    work: "A good theory tells us what should happen, but an experiment must still tell us whether it does.",
+    consequences: "A calculation can describe what changes. It cannot assign the value of a person or a world."
+  },
+  tesla: {
+    interval: "Every portal sings. Listen closely, and you can tell which world is trembling before you can see it.",
+    work: "I would rather build one useful machine than give a hundred lectures about it. Of course, I do enjoy a good lecture.",
+    consequences: "We can redirect the energy, but we must never forget where we have sent it."
+  },
+  lovelace: {
+    interval: "Look at the town's streets from above. There is a pattern. The odd thing is that it changes each time you count.",
+    work: "A machine can manipulate symbols according to rules. The questions we give it remain entirely our own responsibility.",
+    consequences: "An elegant solution is not necessarily an ethical one. The people living inside our equations have opinions."
+  }
+};
+
+export const landmarks = [
+  {
+    id: "fountain", x: 480, y: 411, name: "Fountain of Seasons",
+    description: "The basin holds reflected leaves from spring, summer, autumn and winter, all in the same water. Its stonework feels older than the town.",
+    after: "The fountain's four seasons ripple into one slow current. Something in Elsewhen has become calmer."
+  },
+  {
+    id: "observatory", x: 182, y: 466, name: "The Observatory",
+    description: "A brass telescope points toward a constellation no chart recognizes. Every astronomer draws it differently, yet the telescope never moves.",
+    after: "A newly steady star has appeared in the observation log. Its location agrees with none of the maps."
+  },
+  {
+    id: "atelier", x: 766, y: 463, name: "The Atelier",
+    description: "A clockwork sparrow taps at the window, carrying a note: 'Every useful invention begins with a question.'",
+    after: "The sparrow now sings in three-part harmony. Even the workshop instruments fall quiet to listen."
+  }
+];

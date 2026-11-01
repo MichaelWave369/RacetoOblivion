@@ -13,6 +13,8 @@ export function initialState() {
     choices: {},
     stability: 64,
     insight: 0,
+    discussions: [],
+    observed: [],
     log: ["Arrival: Elsewhen lies somewhere in The Interval."],
     introSeen: false
   };
@@ -26,6 +28,22 @@ export function recruit(state, id) {
   const thinker = thinkers.find((entry) => entry.id === id);
   if (!thinker || state.recruits.includes(id)) return state;
   return { ...state, recruits: [...state.recruits, id], log: [...state.log, thinker.name + " joined your expedition."] };
+}
+
+export function discuss(state, thinkerId, topic) {
+  if (!thinkers.some((person) => person.id === thinkerId) || !["interval","work","consequences"].includes(topic)) return state;
+  const key = thinkerId + ":" + topic;
+  if (state.discussions.includes(key)) return state;
+  const name = thinkers.find((person) => person.id === thinkerId).name;
+  return { ...state, insight: state.insight + 1, discussions: [...state.discussions, key],
+    log: [...state.log, "Conversation with " + name + ": " + topic + "."] };
+}
+
+export function observe(state, landmarkId) {
+  if (!["fountain","observatory","atelier"].includes(landmarkId) || state.observed.includes(landmarkId)) return state;
+  return { ...state, insight: state.insight + 1,
+    observed: [...state.observed, landmarkId],
+    log: [...state.log, "Discovered a detail at " + landmarkId + "."] };
 }
 
 export function travel(state, scene) {
@@ -67,6 +85,8 @@ export function restoreState(raw) {
     recruits: [...new Set(raw.recruits.filter((id) => validRecruits.includes(id)))],
     completed: [...new Set(raw.completed.filter((id) => validWorlds.includes(id)))],
     choices: raw.choices && typeof raw.choices === "object" ? raw.choices : {},
+    discussions: Array.isArray(raw.discussions) ? [...new Set(raw.discussions.filter((value) => typeof value === "string" && /^(einstein|tesla|lovelace):(interval|work|consequences)$/.test(value)))] : [],
+    observed: Array.isArray(raw.observed) ? [...new Set(raw.observed.filter((value) => ["fountain","observatory","atelier"].includes(value)))] : [],
     stability: Number.isFinite(raw.stability) ? clamp(raw.stability, 0, 100) : base.stability,
     insight: Number.isFinite(raw.insight) ? clamp(raw.insight, 0, 100000) : 0,
     log: Array.isArray(raw.log) ? raw.log.filter((entry) => typeof entry === "string").slice(-50) : base.log,
