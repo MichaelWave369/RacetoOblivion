@@ -1,5 +1,6 @@
 import { expeditionNodes, expeditions } from "./expeditions.js";
 import { expeditionProgress, coreReady } from "./expedition-rules.js";
+import { recordsForWorld } from "./field-records.js";
 
 function line(ctx,x1,y1,x2,y2,color,w=2){
   ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.strokeStyle=color;ctx.lineWidth=w;ctx.stroke();
@@ -44,6 +45,14 @@ export function drawExpeditionArt(ctx,state,t){
       circle(ctx,node.x,node.y-38,4+Math.sin(t/320)*1.5,"#ed94ba");
       label(ctx,"HP "+p.echoHealth+"   FOCUS "+p.focus,node.x,node.y+63,10,"#e5caba");
     }
+  }
+  // Optional research markers remain available even after a world is stabilized.
+  for(const record of recordsForWorld(state.scene)){
+    const found=state.records?.includes(record.id);
+    const wave=Math.sin(t/670+record.x)*3;
+    circle(ctx,record.x,record.y,18+wave,found?"#b8f4cb24":"#f1d5ac18",found?"#b1ffd080":"#f4d8ad99",2);
+    label(ctx,found?"✓":"✧",record.x,record.y+1,18,found?"#b9ffd5":"#ffe4be");
+    label(ctx,found?"RECOVERED":"FIELD RECORD",record.x,record.y+37,11,found?"#abdfbb":"#f6dcae");
   }
   // The physical, visual consequences of the expedition keep the player informed.
   if(p.survey)label(ctx,"SURVEY COMPLETE",200,370,10,"#aaf6c8");

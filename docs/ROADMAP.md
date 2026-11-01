@@ -25,6 +25,14 @@ This file intentionally avoids late-story revelations. **Please keep major twist
 - [x] Contextual four-step expedition objectives, persistent choice consequences and revisitable stabilized worlds.
 - [ ] Deeper replayable boss fights, turn grid combat and authored multi-map questlines (future work).
 
+## Rung 4: Echoes Remember
+- [x] Telegraph-driven three-lane tactical echo encounters.
+- [x] Sidestep positioning, safe-lane choices and persistent combat lane on save/reload.
+- [x] Six recoverable and rereadable field records, each with original speculative lore.
+- [x] Gen.E.Wrist archive mode and exploration markers for optional discoveries.
+- [x] Migration tests, full module syntax checks, and deterministic combat rules.
+- [ ] Fully animated tactical battlefield and deeper replayability (future rung).
+
 ## Engineering direction
 - Keep deterministic, separately tested game state.
 - Preserve the canonical Gen.E.Wrist 3/6/9 interaction model when integrating the shared project later.

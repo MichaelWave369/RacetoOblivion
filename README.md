@@ -16,6 +16,8 @@ Open **index.html** in a modern browser, or publish the repository as a static s
 - **Journal:** J or the Journal button.
 - **Gamepad:** Left stick/D-pad to move, A to interact, B for journal, Y to cycle wrist modes. Controller support is best-effort across browsers.
 - **Options:** Opt-in audio, reduce motion and high contrast in the Gen.E.Wrist panel.
+- **Field records:** Look for amber signals in each expedition. Six original records can be collected once and reread in the Gen.E.Wrist Archive.
+- **Tactical echo lanes:** Echoes telegraph their next attack across Left, Center and Right lanes. Attack from a safe lane or sidestep to reposition and restore a little focus. Taking a telegraphed pulse costs equilibrium.
 - **Save:** automatic local browser storage; New Journey lets you reset.
 
 Explore an animated town with living skies, clockwork architecture, a changing equilibrium atmosphere, original ambient audio (opt-in), spatial collision, and a field journal. Discover observatory, fountain and atelier details; speak with the minds about their work and the consequences of choices. Select up to three recruited minds on your Gen.E.Wrist. Each reality now contains a field survey, a mechanism puzzle, a paradox-echo encounter and a final equilibrium decision. Focus and enemy health persist across visits; coordinated moves reward a mixed squad. Meet Einstein, Tesla and Lovelace. Recruit each thinker, enter three dimensional fractures, and make decisions that change the equilibrium index and your journal.
@@ -29,7 +31,7 @@ Requires Node.js 20 or newer for tests only. No install step or third-party pack
 
 See [the spoiler-safe public roadmap](docs/ROADMAP.md).
 
-**Status:** Rung 3, Living Expeditions prototype. This is an early browser-playable slice, not a full campaign.
+**Status:** Rung 4, Echoes Remember prototype. This is an early browser-playable slice, not a finished campaign. This is an early browser-playable slice, not a full campaign.
 
 ## Creative and licensing notes
 
