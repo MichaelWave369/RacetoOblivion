@@ -52,6 +52,16 @@ This file intentionally avoids late-story revelations. **Please keep major twist
 - [x] Fix interaction overlap by repositioning Ada away from the clock face.
 - [ ] A larger authored story campaign continuing beyond the observation room (future rung).
 
+## Rung 7: The Unwritten Visitor
+- [x] Earned Reflection Gallery entrance after the three clock tower instruments are examined.
+- [x] A new original Canvas environment, three interactable mirrors and a final philosophical choice.
+- [x] Distinct consequences for each observation, with persistent one-time equilibrium and insight rewards.
+- [x] Erwin Schrödinger introduced as a non-recruitable visitor with an enigmatic wooden case, without revealing later twists.
+- [x] New Gen.E.Wrist gallery dossier, travel prompts and contextual objectives.
+- [x] Compatible with existing Rung 1–6 saves, including those with the clock chamber already complete.
+- [x] Tests for gallery gating, independent outcomes, save migration, validation and idempotent rewards.
+- [ ] Fully cinematic scenes, advanced dialogue trees and new recruit combat abilities (future rungs).
+
 ## Engineering direction
 - Keep deterministic, separately tested game state.
 - Preserve the canonical Gen.E.Wrist 3/6/9 interaction model when integrating the shared project later.

@@ -2,6 +2,8 @@ import { thinkers, worlds } from "./content.js";
 import { visitors, conclave, trustFor } from "./relationships.js";
 import { drawExpeditionArt } from "./expedition-art.js";
 import { drawClockRoom } from "./clockroom-art.js";
+import { drawReflectionGallery } from "./reflection-art.js";
+import { galleryAvailable, unwrittenVisitor, reflectionSummary } from "./reflection-rules.js";
 import { clockSummary } from "./clock-rules.js";
 
 // Original, deterministic Canvas artwork. No image downloads, CDN calls, or
@@ -247,6 +249,17 @@ function town(c,state,t){
     text(c,visitor.name,visitor.x,visitor.y-53,12,visitor.color);
     if(state.social?.visitors?.includes(visitor.id))disk(c,visitor.x+22,visitor.y-35,3,"#a0f2bc");
   }
+  // An unfamiliar physicist visits only after the chamber's observation.
+  // He carries an original wooden case; no contents are depicted.
+  if(galleryAvailable(state)){
+    const visitor=unwrittenVisitor;
+    painter(c,visitor.x,visitor.y,"#736d5a",visitor.color,Math.sin(t/290));
+    c.fillStyle="#856849";
+    c.fillRect(visitor.x+12,visitor.y-8,15,12);
+    stroke(c,visitor.x+14,visitor.y-9,visitor.x+24,visitor.y-9,"#f3d5a5",2);
+    text(c,visitor.name,visitor.x,visitor.y-53,12,visitor.color);
+    if(reflectionSummary(state).met)disk(c,visitor.x-20,visitor.y-41,4,"#b2e8d9");
+  }
   // A quiet visual reward for allies who have earned Michael's confidence.
   for(const person of thinkers){
     if(trustFor(state,person.id)>=2){
@@ -321,6 +334,7 @@ export function drawWorld(ctx,state,t,{moving=false,facing="right"}={}){
   ctx.save();
   if(state.scene==="elsewhen")town(ctx,state,t);
   else if(state.scene==="clockroom")drawClockRoom(ctx,state,t);
+  else if(state.scene==="gallery")drawReflectionGallery(ctx,state,t);
   else {
     const world=worlds.find((entry)=>entry.id===state.scene);
     if(world){worldBackdrop(ctx,world,t,state);drawExpeditionArt(ctx,state,t);}
