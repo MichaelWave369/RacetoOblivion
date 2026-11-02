@@ -1,6 +1,8 @@
 import { thinkers, worlds } from "./content.js";
 import { visitors, conclave, trustFor } from "./relationships.js";
 import { drawExpeditionArt } from "./expedition-art.js";
+import { drawClockRoom } from "./clockroom-art.js";
+import { clockSummary } from "./clock-rules.js";
 
 // Original, deterministic Canvas artwork. No image downloads, CDN calls, or
 // game-engine dependencies. World coordinates are shared with navigation.js.
@@ -211,6 +213,11 @@ function town(c,state,t){
   building(c,825,414,88,65,"#745f87","#24384d");
   clockTower(c,t);
   lamppost(c,265,399,t);lamppost(c,699,395,t);lamppost(c,151,468,t);lamppost(c,807,479,t);
+  // The clock face becomes a distinct interaction when approached from the plaza.
+  const clock=clockSummary(state);
+  disk(c,485,249,clock.solved?10:6,clock.solved?"#a6f9ce":"#f4ce93");
+  disk(c,485,249,19,clock.solved?"#a6f9ce1b":"#f4ce9317",clock.solved?"#8ce1bf":"#d4b97e",1.4);
+  if(clock.solved)text(c,"OPEN",485,265,9,"#adf0ca");
   // The old plaza fountain and its non-Euclidean waterline.
   ellipse(c,480,412,66,23,"#172b38");
   ellipse(c,480,410,59,16,"#a7b5ad");
@@ -313,6 +320,7 @@ function player(c,state,t,moving,facing){
 export function drawWorld(ctx,state,t,{moving=false,facing="right"}={}){
   ctx.save();
   if(state.scene==="elsewhen")town(ctx,state,t);
+  else if(state.scene==="clockroom")drawClockRoom(ctx,state,t);
   else {
     const world=worlds.find((entry)=>entry.id===state.scene);
     if(world){worldBackdrop(ctx,world,t,state);drawExpeditionArt(ctx,state,t);}

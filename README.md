@@ -16,6 +16,7 @@ Open **index.html** in a modern browser, or publish the repository as a static s
 - **Journal:** J or the Journal button.
 - **Gamepad:** Left stick/D-pad to move, A to interact, B for journal, Y to cycle wrist modes. Controller support is best-effort across browsers.
 - **Options:** Opt-in audio, reduce motion and high contrast in the Gen.E.Wrist panel.
+- **Clock Tower mystery:** Stabilize a realm, then return to the corresponding Elsewhen landmark to recover an inscription. Collect three and align the tower's glyphs in the order implied by the clues. Explore the newly unlocked observation room and investigate its three instruments. All chapter progress is saved locally.
 - **Relationships:** Visit recruited thinkers to begin one of three personal inquiries, then return the associated recovered field record. Stronger trust improves certain collaborative puzzle solutions. The Conclave near the town square hosts debates after you stabilize a realm. Meet two visiting scholars, Marie Curie and Leonardo da Vinci, for extra discoveries.
 - **Field records:** Look for amber signals in each expedition. Six original records can be collected once and reread in the Gen.E.Wrist Archive.
 - **Tactical echo lanes:** Echoes telegraph their next attack across Left, Center and Right lanes. Attack from a safe lane or sidestep to reposition and restore a little focus. Taking a telegraphed pulse costs equilibrium.
@@ -32,7 +33,7 @@ Requires Node.js 20 or newer for tests only. No install step or third-party pack
 
 See [the spoiler-safe public roadmap](docs/ROADMAP.md).
 
-**Status:** Rung 5, The Minds of Elsewhen prototype. This is an early browser-playable slice, not a finished campaign. This is an early browser-playable slice, not a full campaign.
+**Status:** Rung 6, The Clock That Counts Backward prototype. This is an early browser-playable slice, not a finished campaign. This is an early browser-playable slice, not a full campaign.
 
 ## Creative and licensing notes
 

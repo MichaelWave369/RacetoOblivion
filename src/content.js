@@ -1,7 +1,7 @@
 export const thinkers = [
   { id: "einstein", name: "Albert Einstein", role: "The Relativist", initials: "AE", x: 228, y: 328, color: "#e6bd84", lines: "The town refuses to obey ordinary time. That should worry us. It also makes it a marvelous place to think.", join: "I will help you trace the fractures. But don't confuse a useful equation with a harmless decision." },
   { id: "tesla", name: "Nikola Tesla", role: "The Conductor", initials: "NT", x: 722, y: 330, color: "#89d9e4", lines: "The portals hum with a frequency no instrument should be able to hear. We must follow it.", join: "My field stabilizers are yours. Try not to cross the wires of existence." },
-  { id: "lovelace", name: "Ada Lovelace", role: "The Coder", initials: "AL", x: 476, y: 285, color: "#caabfa", lines: "There is a pattern beneath all these worlds. Patterns may be decoded, but never assume the pattern is kind.", join: "We shall write a better outcome, provided we understand the rules first." }
+  { id: "lovelace", name: "Ada Lovelace", role: "The Coder", initials: "AL", x: 394, y: 321, color: "#caabfa", lines: "There is a pattern beneath all these worlds. Patterns may be decoded, but never assume the pattern is kind.", join: "We shall write a better outcome, provided we understand the rules first." }
 ];
 
 export const worlds = [

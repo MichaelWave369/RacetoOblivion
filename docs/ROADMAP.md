@@ -43,6 +43,15 @@ This file intentionally avoids late-story revelations. **Please keep major twist
 - [x] Legacy save migration and deterministic social-system tests.
 - [ ] Fully recruitable new thinkers, character schedules, and deeper affinity arcs (future rungs).
 
+## Rung 6: The Clock That Counts Backward
+- [x] Three optional clue inscriptions connect established realm choices to familiar Elsewhen landmarks.
+- [x] A three-glyph order puzzle with persisted partial input and no punitive lockout.
+- [x] A new clock tower observation chamber accessible after aligning the dial, with original procedural art.
+- [x] Three chamber instruments, one-time insight rewards and an earned chapter-completion moment.
+- [x] Gen.E.Wrist clock dossier, contextual objectives, and save compatibility across previous rungs.
+- [x] Fix interaction overlap by repositioning Ada away from the clock face.
+- [ ] A larger authored story campaign continuing beyond the observation room (future rung).
+
 ## Engineering direction
 - Keep deterministic, separately tested game state.
 - Preserve the canonical Gen.E.Wrist 3/6/9 interaction model when integrating the shared project later.
