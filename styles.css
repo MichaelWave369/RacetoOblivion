@@ -70,3 +70,13 @@ body.reduce-motion .orbit{animation:none}
 .clock-panel button:hover{background:#415365}
 .clock-panel button:focus-visible{outline:3px solid #fff0b6;outline-offset:2px}
 @media(max-width:1100px){.clock-panel{grid-column:1/-1}}
+
+/* Rung 7: optional earned gallery chapter and its accessible dossier. */
+.reflection-panel{padding:14px 0;border-bottom:1px solid #52637a}
+.reflection-panel h3{font:11px Consolas,monospace;letter-spacing:.14em;color:#d9bff0;margin:0 0 8px}
+.reflection-panel p{font:12px/1.5 Trebuchet MS,Arial,sans-serif;color:#b5c6d8;margin:0 0 11px}
+.reflection-panel button{min-height:43px;width:100%;border:1px solid #a992c6;background:#292e48;
+color:#efe2ff;padding:10px 8px;font:11px Consolas,monospace;letter-spacing:.025em}
+.reflection-panel button:hover{background:#3e415c}
+.reflection-panel button:focus-visible{outline:3px solid #ffe9ba;outline-offset:2px}
+@media(max-width:1100px){.reflection-panel{grid-column:1/-1}}

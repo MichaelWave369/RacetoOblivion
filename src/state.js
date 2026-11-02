@@ -3,6 +3,7 @@ import { validateExpeditions, validateSquad } from "./expedition-rules.js";
 import { validateRecords } from "./field-records.js";
 import { initialSocial, validateSocial } from "./relationships.js";
 import { initialClock, validateClock } from "./clock-rules.js";
+import { initialReflection, validateReflection, galleryAvailable } from "./reflection-rules.js";
 
 export const SAVE_KEY = "rto-interval-rung01-v1";
 
@@ -24,6 +25,7 @@ export function initialState() {
     records: [],
     social: initialSocial(),
     clock: initialClock(),
+    reflection: initialReflection(),
     log: ["Arrival: Elsewhen lies somewhere in The Interval."],
     introSeen: false
   };
@@ -57,15 +59,17 @@ export function observe(state, landmarkId) {
 
 export function travel(state,scene){
   const allowed=scene==="elsewhen" || worlds.some(w=>w.id===scene) ||
-    (scene==="clockroom" && validateClock(state.clock).solved);
+    (scene==="clockroom" && validateClock(state.clock).solved) ||
+    (scene==="gallery" && galleryAvailable(state));
   if(!allowed)return state;
-  const name=scene==="elsewhen"?"Elsewhen":scene==="clockroom"?
-    "Clock Tower Observation Chamber":worlds.find(w=>w.id===scene).name;
+  const name=scene==="elsewhen"?"Elsewhen":
+    scene==="clockroom"?"Clock Tower Observation Chamber":
+    scene==="gallery"?"The Reflection Gallery":worlds.find(w=>w.id===scene).name;
   return {
     ...state,
     scene,
     x:480,
-    y:scene==="elsewhen"?454:scene==="clockroom"?480:468,
+    y:scene==="elsewhen"?454:scene==="clockroom"?480:scene==="gallery"?325:468,
     log:[...state.log,"Entered "+name+"."].slice(-50)
   };
 }
@@ -93,7 +97,8 @@ export function restoreState(raw) {
   return {
     ...base,
     scene: raw.scene === "elsewhen" || validWorlds.includes(raw.scene) ||
-      (raw.scene==="clockroom" && validateClock(raw.clock).solved) ? raw.scene : "elsewhen",
+      (raw.scene==="clockroom" && validateClock(raw.clock).solved) ||
+      (raw.scene==="gallery" && galleryAvailable(raw)) ? raw.scene : "elsewhen",
     x: Number.isFinite(raw.x) ? clamp(raw.x, 35, 925) : base.x,
     y: Number.isFinite(raw.y) ? clamp(raw.y, 42, 525) : base.y,
     recruits: [...new Set(raw.recruits.filter((id) => validRecruits.includes(id)))],
@@ -106,6 +111,7 @@ export function restoreState(raw) {
     records: validateRecords(raw.records),
     social: validateSocial(raw.social),
     clock: validateClock(raw.clock),
+    reflection: validateReflection(raw.reflection),
     stability: Number.isFinite(raw.stability) ? clamp(raw.stability, 0, 100) : base.stability,
     insight: Number.isFinite(raw.insight) ? clamp(raw.insight, 0, 100000) : 0,
     log: Array.isArray(raw.log) ? raw.log.filter((entry) => typeof entry === "string").slice(-50) : base.log,

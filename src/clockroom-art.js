@@ -1,4 +1,5 @@
 import { clockStations, validateClock, clockOrder } from "./clock-rules.js";
+import { galleryAvailable, galleryEntrance, reflectionSummary } from "./reflection-rules.js";
 function disc(c,x,y,r,fill,stroke=null,w=1){
   c.beginPath();c.arc(x,y,r,0,Math.PI*2);c.fillStyle=fill;c.fill();
   if(stroke){c.lineWidth=w;c.strokeStyle=stroke;c.stroke();}
@@ -70,6 +71,16 @@ export function drawClockRoom(c,state,t){
     disc(c,station.x,station.y,24,observed?"#20493e":"#152a40",colors[i],3);
     label(c,observed?"✓":station.symbol,station.x,station.y+1,22,colors[i]);
     label(c,station.name,station.x,station.y+53,13,observed?"#b5efcd":"#e5dfd0");
+  }
+  // The next mystery emerges only after the three observations agree.
+  if(galleryAvailable(state)){
+    const entry=galleryEntrance;
+    const completed=reflectionSummary(state).complete;
+    const pulse=3*Math.sin(t/600);
+    disc(c,entry.x,entry.y,28+pulse,"#b3d6ff23",completed?"#a3f3c9":"#d9bbef",3);
+    disc(c,entry.x,entry.y,19,"#1c314a","#94cfd8",2);
+    label(c,completed?"✓":"◇",entry.x,entry.y,22,"#fff0c6");
+    label(c,completed?"REFLECTIONS RECORDED":"THE REFLECTION GALLERY",entry.x,entry.y+38,11,"#e0c8f5");
   }
   // Brass-inscribed exit floor circle.
   disc(c,480,503,29,"#192d3e","#d8b87c",3);
