@@ -72,6 +72,17 @@ This file intentionally avoids late-story revelations. **Please keep major twist
 - [x] Regression tests for gating, evidence, deduction, replay safety, old saves and interaction coordinates.
 - [ ] Deeper witness dialogue trees, multi-scene detective exploration and voiced performances (future work).
 
+## Rung 9: The Cartographer's Paradox
+- [x] Living Atlas entrance unlocks on the recorded Missing Witness verdict.
+- [x] Three distinct walk-up survey beacons and an order-based three-segment route puzzle.
+- [x] Original changing-map Canvas scene with visibly connected route segments.
+- [x] Once-only survey rewards; non-blocking route resets with bounded, non-repeat penalties.
+- [x] Three permanent publishing choices with different equilibrium and insight effects.
+- [x] Mera the Cartographer visits Elsewhen, reacting to chart completion; town paths gain a subtle visual trace.
+- [x] Gen.E.Wrist Living Atlas dossier, contextual objectives, and compatibility with existing saves.
+- [x] Tests for migration, gating, route ordering, retry safety, final decisions, coordinates and spoiler hygiene.
+- [ ] Larger explorable route network and systemic world navigation (future work).
+
 ## Engineering direction
 - Keep deterministic, separately tested game state.
 - Preserve the canonical Gen.E.Wrist 3/6/9 interaction model when integrating the shared project later.

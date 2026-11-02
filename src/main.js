@@ -15,6 +15,8 @@ import { galleryAvailable, reflectionSummary, reflectionMirrors, unwrittenVisito
 import { createReflectionUI } from "./reflection-ui.js";
 import { witnessAvailable, witnessSummary, witnessEntrance, witnessExit, testimony, evidence, witnessBoard } from "./witness-rules.js";
 import { createWitnessUI } from "./witness-ui.js";
+import {mapmaker,atlasEntrance,atlasExit,atlasBeacons,atlasChart,atlasSummary,atlasAvailable} from "./atlas-rules.js";
+import {createAtlasUI} from "./atlas-ui.js";
 
 const canvas = document.querySelector("#world");
 const ctx = canvas.getContext("2d");
@@ -74,8 +76,11 @@ function updateWristIntel() {
       :"Recovered "+summary.count+" of "+totalRecords+" field records. Follow the small amber signals on expedition maps.";
     return;
   }
+  if(state.scene==="atlas"){
+    $("wrist-intel").textContent=atlasSummary(state).next;return;
+  }
   if(state.scene==="witnesshall"){
-    $("wrist-intel").textContent=witnessSummary(state).next;return;
+    $("wrist-intel").textContent=atlasAvailable(state)?atlasSummary(state).next:witnessSummary(state).next;return;
   }
   if(state.scene==="gallery"){
     $("wrist-intel").textContent=witnessAvailable(state)?witnessSummary(state).next:reflectionSummary(state).next;return;
@@ -100,8 +105,11 @@ function updateWristIntel() {
   }
 }
 function updateQuest() {
+  if(state.scene==="atlas"){
+    $("quest-status").textContent=atlasSummary(state).next;return;
+  }
   if(state.scene==="witnesshall"){
-    $("quest-status").textContent=witnessSummary(state).next;return;
+    $("quest-status").textContent=atlasAvailable(state)?atlasSummary(state).next:witnessSummary(state).next;return;
   }
   if(state.scene==="gallery"){
     $("quest-status").textContent=witnessAvailable(state)?witnessSummary(state).next:reflectionSummary(state).next;return;
@@ -115,7 +123,10 @@ function updateQuest() {
   }
   const notRecruited=thinkers.filter(p=>!state.recruits.includes(p.id));
   const unresolved=worlds.filter(w=>!state.completed.includes(w.id));
-  if(witnessAvailable(state)){
+  if(atlasAvailable(state)){
+    $("quest-status").textContent=atlasSummary(state).complete?"Visit Mera in Elsewhen to discuss the finished chart.":"Find the new Living Atlas entrance in the Hall of Witnesses.";
+  }
+  else if(witnessAvailable(state)){
     $("quest-status").textContent=witnessSummary(state).complete?"Return to Elsewhen and discuss the case with Schrödinger.":"A new doorway has opened in the Reflection Gallery. Find the Hall of Witnesses.";
   }
   else if(galleryAvailable(state)){
@@ -197,8 +208,8 @@ function exploreRecord(record){
 }
 function updateReadout() {
   const scene = worlds.find((world) => world.id === state.scene);
-  $("location").textContent = state.scene==="witnesshall"?"The Hall of Witnesses":state.scene==="gallery"?"The Reflection Gallery":state.scene==="clockroom"?"Clock Tower · Observation Chamber":scene?scene.name:"Elsewhen";
-  $("chapter").textContent = state.scene==="witnesshall"?"CHAPTER 05 · THE MISSING WITNESS":state.scene==="gallery"?"CHAPTER 04 · REFLECTIONS":state.scene==="clockroom"?"CHAPTER 03 · THE UNWRITTEN HOUR":state.scene !== "elsewhen" ? "CHAPTER 02 · EXPEDITION" : state.completed.length === 3 ? "CHAPTER 01 · OBSERVATION" : "CHAPTER 01 · ARRIVAL";
+  $("location").textContent = state.scene==="atlas"?"The Living Atlas":state.scene==="witnesshall"?"The Hall of Witnesses":state.scene==="gallery"?"The Reflection Gallery":state.scene==="clockroom"?"Clock Tower · Observation Chamber":scene?scene.name:"Elsewhen";
+  $("chapter").textContent = state.scene==="atlas"?"CHAPTER 06 · THE CARTOGRAPHER":state.scene==="witnesshall"?"CHAPTER 05 · THE MISSING WITNESS":state.scene==="gallery"?"CHAPTER 04 · REFLECTIONS":state.scene==="clockroom"?"CHAPTER 03 · THE UNWRITTEN HOUR":state.scene !== "elsewhen" ? "CHAPTER 02 · EXPEDITION" : state.completed.length === 3 ? "CHAPTER 01 · OBSERVATION" : "CHAPTER 01 · ARRIVAL";
   $("progress").textContent = state.completed.length + " / 3 FRACTURES";
   $("stability-value").textContent = state.stability + "%";
   $("stability-meter").style.width = state.stability + "%";
@@ -216,6 +227,9 @@ function updateReadout() {
   const caseFile=witnessSummary(state);
   $("witness-button").textContent=caseFile.unlocked?"MISSING WITNESS · "+caseFile.count+" / "+caseFile.total:"MISSING WITNESS · LOCKED";
   $("witness-status").textContent=caseFile.next;
+  const atlas=atlasSummary(state);
+  $("atlas-button").textContent=atlas.available?"LIVING ATLAS · "+atlas.scannedCount+"/3 SURVEYS":"LIVING ATLAS · LOCKED";
+  $("atlas-status").textContent=atlas.next;
   $("relationship-status").textContent=social.filter(p=>p.quest==="ready").length
     ?"A companion has evidence to review. Return to their home in Elsewhen."
     :social.filter(p=>p.quest==="active").length
@@ -246,6 +260,7 @@ function targetNear() {
     for(const person of thinkers)if(near(person.x,person.y,65))return {kind:"person",item:person};
     for(const world of worlds)if(near(world.x,world.y,76))return {kind:"portal",item:world};
     if(galleryAvailable(state)&&near(unwrittenVisitor.x,unwrittenVisitor.y,59))return {kind:"unwrittenVisitor"};
+    if(atlasAvailable(state)&&near(mapmaker.x,mapmaker.y,49))return {kind:"mapmaker"};
     for(const visitor of visitors)if(near(visitor.x,visitor.y,57))return {kind:"visitor",item:visitor};
     if(near(conclave.x,conclave.y,62))return {kind:"conclave"};
     for(const landmark of landmarks)if(near(landmark.x,landmark.y,54))return {kind:"landmark",item:landmark};
@@ -259,10 +274,15 @@ function targetNear() {
     if(near(galleryCore.x,galleryCore.y,58))return {kind:"reflectionCore"};
     if(near(galleryExit.x,galleryExit.y,62))return {kind:"galleryExit"};
   }else if(state.scene==="witnesshall"){
+    if(atlasAvailable(state)&&near(atlasEntrance.x,atlasEntrance.y,46))return {kind:"atlasEntrance"};
     for(const person of testimony)if(near(person.x,person.y,58))return {kind:"witnessPerson",item:person};
     for(const item of evidence)if(near(item.x,item.y,56))return {kind:"witnessEvidence",item};
     if(near(witnessBoard.x,witnessBoard.y,60))return {kind:"witnessBoard"};
     if(near(witnessExit.x,witnessExit.y,59))return {kind:"witnessExit"};
+  }else if(state.scene==="atlas"){
+    for(const beacon of atlasBeacons)if(near(beacon.x,beacon.y,57))return {kind:"atlasBeacon",item:beacon};
+    if(near(atlasChart.x,atlasChart.y,58))return {kind:"atlasChart"};
+    if(near(atlasExit.x,atlasExit.y,48))return {kind:"atlasExit"};
   }else{
     for(const node of expeditionNodes.filter(n=>n.id!=="core")){
       if(near(node.x,node.y,node.id==="echo"?62:64))return {kind:"stage",node};
@@ -293,10 +313,16 @@ const {manageSquad,exploreStage}=createExpeditionUI({getState:()=>state,apply,sh
 const {showClock,inspectStation}=createClockUI({getState:()=>state,apply,showDialog,closeDialog,travel});
 const {talkVisitor,showGalleryStatus,examineMirror,examineQuestion}=createReflectionUI({getState:()=>state,apply,showDialog,closeDialog,travel});
 const {status:showWitnessStatus,speak:speakWitness,examine:examineWitnessEvidence,board:openWitnessBoard}=createWitnessUI({getState:()=>state,apply,showDialog,closeDialog,travel});
+const {showMapmaker, dossier:showAtlas,inspectBeacon:scanAtlasBeacon,chart:openAtlasChart}=createAtlasUI({getState:()=>state,apply,showDialog,closeDialog,travel});
 function interact() {
   if(open)return;
   const target=targetNear();
   if(!target)return;
+  if(target.kind==="mapmaker"){showMapmaker();return;}
+  if(target.kind==="atlasEntrance"){showAtlas(true);return;}
+  if(target.kind==="atlasBeacon"){scanAtlasBeacon(target.item.id);return;}
+  if(target.kind==="atlasChart"){openAtlasChart();return;}
+  if(target.kind==="atlasExit"){apply(travel(state,"witnesshall"));return;}
   if(target.kind==="witnessEntrance"){showWitnessStatus(true);return;}
   if(target.kind==="witnessPerson"){speakWitness(target.item.id);return;}
   if(target.kind==="witnessEvidence"){examineWitnessEvidence(target.item.id);return;}
@@ -364,6 +390,11 @@ function interact() {
 function prompt() {
   const target=targetNear();
   const message = !target ? "Explore with WASD / arrows, E to interact, G for Gen.E.Wrist." :
+    target.kind === "mapmaker" ? "E · SPEAK WITH MERA" :
+    target.kind === "atlasEntrance" ? "E · ENTER THE LIVING ATLAS" :
+    target.kind === "atlasBeacon" ? "E · SURVEY " + target.item.name.toUpperCase() :
+    target.kind === "atlasChart" ? "E · OPEN THE ROUTE TABLE" :
+    target.kind === "atlasExit" ? "E · RETURN TO HALL OF WITNESSES" :
     target.kind === "witnessEntrance" ? "E · ENTER THE HALL OF WITNESSES" :
     target.kind === "witnessPerson" ? "E · HEAR " + target.item.name.toUpperCase() :
     target.kind === "witnessEvidence" ? "E · EXAMINE " + target.item.name.toUpperCase() :
@@ -468,6 +499,7 @@ $("relationship-button").addEventListener("click",showRelationships);
 $("clock-button").addEventListener("click",()=>showClock(false));
 $("reflection-button").addEventListener("click",()=>showGalleryStatus(false));
 $("witness-button").addEventListener("click",()=>showWitnessStatus(false));
+$("atlas-button").addEventListener("click",()=>showAtlas(false));
 $("squad-button").addEventListener("click",manageSquad);
 $("close-dialog").addEventListener("click",closeDialog);
 $("reset-button").addEventListener("click",()=>{

@@ -4,6 +4,8 @@ import { drawExpeditionArt } from "./expedition-art.js";
 import { drawClockRoom } from "./clockroom-art.js";
 import { drawReflectionGallery } from "./reflection-art.js";
 import { drawWitnessHall } from "./witness-art.js";
+import { drawLivingAtlas } from "./atlas-art.js";
+import { mapmaker, atlasAvailable, atlasSummary } from "./atlas-rules.js";
 import { galleryAvailable, unwrittenVisitor, reflectionSummary } from "./reflection-rules.js";
 import { clockSummary } from "./clock-rules.js";
 
@@ -261,6 +263,19 @@ function town(c,state,t){
     text(c,visitor.name,visitor.x,visitor.y-53,12,visitor.color);
     if(reflectionSummary(state).met)disk(c,visitor.x-20,visitor.y-41,4,"#b2e8d9");
   }
+  // Mera surveys Elsewhen's shifting routes once the missing-witness case is closed.
+  if(atlasAvailable(state)){
+    const cart=mapmaker;
+    painter(c,cart.x,cart.y,"#685d85",cart.color,Math.sin(t/310));
+    text(c,cart.name,cart.x,cart.y-53,12,cart.color);
+    if(atlasSummary(state).complete)disk(c,cart.x+20,cart.y-41,4,"#b6ffdc");
+    // A resolved chart leaves faint star-lines over the cobblestones.
+    if(atlasSummary(state).complete){
+      stroke(c,555,465,630,447,"#b1ecd65d",2);
+      stroke(c,630,447,708,482,"#b1ecd65d",2);
+      stroke(c,708,482,780,449,"#b1ecd65d",2);
+    }
+  }
   // A quiet visual reward for allies who have earned Michael's confidence.
   for(const person of thinkers){
     if(trustFor(state,person.id)>=2){
@@ -337,6 +352,7 @@ export function drawWorld(ctx,state,t,{moving=false,facing="right"}={}){
   else if(state.scene==="clockroom")drawClockRoom(ctx,state,t);
   else if(state.scene==="gallery")drawReflectionGallery(ctx,state,t);
   else if(state.scene==="witnesshall")drawWitnessHall(ctx,state,t);
+  else if(state.scene==="atlas")drawLivingAtlas(ctx,state,t);
   else {
     const world=worlds.find((entry)=>entry.id===state.scene);
     if(world){worldBackdrop(ctx,world,t,state);drawExpeditionArt(ctx,state,t);}

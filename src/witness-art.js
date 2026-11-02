@@ -1,4 +1,5 @@
 import {testimony,evidence,witnessBoard,witnessExit,witnessSummary} from "./witness-rules.js";
+import {atlasAvailable, atlasEntrance, atlasSummary} from "./atlas-rules.js";
 const TAU=Math.PI*2;
 function circle(c,x,y,r,fill,stroke=null,w=2){
   c.beginPath();c.arc(x,y,r,0,TAU);c.fillStyle=fill;c.fill();
@@ -56,5 +57,12 @@ export function drawWitnessHall(c,state,t){
   label(c,"↶",witnessExit.x,witnessExit.y,25,"#ffe5b5");
   label(c,"RETURN TO REFLECTIONS",witnessExit.x,witnessExit.y+39,11,"#eedcbf");
   label(c,"CASE FILE "+status.count+" / "+status.total,480,139,13,status.complete?"#b7ffe0":"#d8d4ca");
+  if(atlasAvailable(state)){
+    const chart=atlasSummary(state);
+    const glow=chart.complete?"#b4ffe0":"#ddc2f0";
+    circle(c,atlasEntrance.x,atlasEntrance.y,26+Math.sin(t/560)*3,glow+"22",glow,3);
+    label(c,chart.complete?"✓":"✧",atlasEntrance.x,atlasEntrance.y,23,glow);
+    label(c,chart.complete?"ROUTE RECORDED":"THE LIVING ATLAS",atlasEntrance.x,atlasEntrance.y-40,11,glow);
+  }
   if(status.complete)label(c,"CASE RECORDED · OBSERVATIONS RETAINED",480,448,12,"#bdf0ce");
 }
