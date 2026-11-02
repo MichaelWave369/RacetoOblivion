@@ -1,3 +1,4 @@
+import { witnessSummary } from "./witness-rules.js";
 import { unwrittenVisitor, reflectionMirrors, reflectionConclusions, galleryCore,
   reflectionSummary, meetUnwrittenVisitor, chooseReflection, concludeReflection } from "./reflection-rules.js";
 
@@ -9,6 +10,7 @@ export function createReflectionUI({getState,apply,showDialog,closeDialog,travel
     const wasMet=reflectionSummary(state).met;
     if(!wasMet)apply(meetUnwrittenVisitor(state));
     const result=reflectionSummary(getState());
+    const witness=witnessSummary(getState());
     const actions=[
       {label:"Ask about the wooden case",action:()=>{
         showDialog("A Case Without a Label",
@@ -20,7 +22,7 @@ export function createReflectionUI({getState,apply,showDialog,closeDialog,travel
       }},
       {label:"Ask about the Reflection Gallery",action:()=>{
         showDialog("Erwin Schrödinger · An Unfinished Experiment",
-          result.complete?unwrittenVisitor.after:
+          witness.complete?"Your investigation did not need an accused person to be worthwhile. The box is still closed, however. I find that appropriate.":result.complete?unwrittenVisitor.after:
             "Beyond the clock tower is a room that seems to show incompatible accounts of the same place. "+
             "I'm not convinced we should discard an account just because it makes our answer less comfortable.",
           [{label:"Return to conversation",action:talkVisitor},
@@ -31,6 +33,7 @@ export function createReflectionUI({getState,apply,showDialog,closeDialog,travel
     showDialog("Erwin Schrödinger · The Unwritten Visitor",
       (wasMet?unwrittenVisitor.followup:unwrittenVisitor.introduction)+
       (result.complete?"\n\n"+unwrittenVisitor.after:"")+
+      (witness.complete?"\n\nI have read your case file. The witnesses will remember that you heard them.": "")+
       (wasMet?"":"\n\nNew acquaintance · Insight +1"),actions);
   }
   function showGalleryStatus(atEntrance=false){
