@@ -5,6 +5,8 @@ import { drawClockRoom } from "./clockroom-art.js";
 import { drawReflectionGallery } from "./reflection-art.js";
 import { drawWitnessHall } from "./witness-art.js";
 import { drawLivingAtlas } from "./atlas-art.js";
+import { drawWayfarersCrossing } from "./crossing-art.js";
+import { crossingSummary } from "./crossing-rules.js";
 import { mapmaker, atlasAvailable, atlasSummary } from "./atlas-rules.js";
 import { galleryAvailable, unwrittenVisitor, reflectionSummary } from "./reflection-rules.js";
 import { clockSummary } from "./clock-rules.js";
@@ -269,6 +271,11 @@ function town(c,state,t){
     painter(c,cart.x,cart.y,"#685d85",cart.color,Math.sin(t/310));
     text(c,cart.name,cart.x,cart.y-53,12,cart.color);
     if(atlasSummary(state).complete)disk(c,cart.x+20,cart.y-41,4,"#b6ffdc");
+    // A recorded crossing extends Mera's star-lines toward the square.
+    if(crossingSummary(state).complete){
+      stroke(c,780,449,849,480,"#c2f1b77d",3);
+      disk(c,849,480,4,"#b5f4bd");
+    }
     // A resolved chart leaves faint star-lines over the cobblestones.
     if(atlasSummary(state).complete){
       stroke(c,555,465,630,447,"#b1ecd65d",2);
@@ -353,6 +360,7 @@ export function drawWorld(ctx,state,t,{moving=false,facing="right"}={}){
   else if(state.scene==="gallery")drawReflectionGallery(ctx,state,t);
   else if(state.scene==="witnesshall")drawWitnessHall(ctx,state,t);
   else if(state.scene==="atlas")drawLivingAtlas(ctx,state,t);
+  else if(state.scene==="crossing")drawWayfarersCrossing(ctx,state,t);
   else {
     const world=worlds.find((entry)=>entry.id===state.scene);
     if(world){worldBackdrop(ctx,world,t,state);drawExpeditionArt(ctx,state,t);}

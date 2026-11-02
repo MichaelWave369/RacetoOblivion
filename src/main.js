@@ -17,6 +17,8 @@ import { witnessAvailable, witnessSummary, witnessEntrance, witnessExit, testimo
 import { createWitnessUI } from "./witness-ui.js";
 import {mapmaker,atlasEntrance,atlasExit,atlasBeacons,atlasChart,atlasSummary,atlasAvailable} from "./atlas-rules.js";
 import {createAtlasUI} from "./atlas-ui.js";
+import {crossingEntrance,crossingExit,crossingPaths,crossingTable,crossingArrival,crossingSummary,crossingAvailable} from "./crossing-rules.js";
+import {createCrossingUI} from "./crossing-ui.js";
 
 const canvas = document.querySelector("#world");
 const ctx = canvas.getContext("2d");
@@ -76,8 +78,11 @@ function updateWristIntel() {
       :"Recovered "+summary.count+" of "+totalRecords+" field records. Follow the small amber signals on expedition maps.";
     return;
   }
+  if(state.scene==="crossing"){
+    $("wrist-intel").textContent=crossingSummary(state).next;return;
+  }
   if(state.scene==="atlas"){
-    $("wrist-intel").textContent=atlasSummary(state).next;return;
+    $("wrist-intel").textContent=crossingAvailable(state)?crossingSummary(state).next:atlasSummary(state).next;return;
   }
   if(state.scene==="witnesshall"){
     $("wrist-intel").textContent=atlasAvailable(state)?atlasSummary(state).next:witnessSummary(state).next;return;
@@ -105,8 +110,11 @@ function updateWristIntel() {
   }
 }
 function updateQuest() {
+  if(state.scene==="crossing"){
+    $("quest-status").textContent=crossingSummary(state).next;return;
+  }
   if(state.scene==="atlas"){
-    $("quest-status").textContent=atlasSummary(state).next;return;
+    $("quest-status").textContent=crossingAvailable(state)?crossingSummary(state).next:atlasSummary(state).next;return;
   }
   if(state.scene==="witnesshall"){
     $("quest-status").textContent=atlasAvailable(state)?atlasSummary(state).next:witnessSummary(state).next;return;
@@ -123,7 +131,10 @@ function updateQuest() {
   }
   const notRecruited=thinkers.filter(p=>!state.recruits.includes(p.id));
   const unresolved=worlds.filter(w=>!state.completed.includes(w.id));
-  if(atlasAvailable(state)){
+  if(crossingAvailable(state)){
+    $("quest-status").textContent=crossingSummary(state).complete?"Visit Mera in Elsewhen and review the passage you secured.":"The Living Atlas now opens a physical crossing. Return there to find the new route.";
+  }
+  else if(atlasAvailable(state)){
     $("quest-status").textContent=atlasSummary(state).complete?"Visit Mera in Elsewhen to discuss the finished chart.":"Find the new Living Atlas entrance in the Hall of Witnesses.";
   }
   else if(witnessAvailable(state)){
@@ -208,8 +219,8 @@ function exploreRecord(record){
 }
 function updateReadout() {
   const scene = worlds.find((world) => world.id === state.scene);
-  $("location").textContent = state.scene==="atlas"?"The Living Atlas":state.scene==="witnesshall"?"The Hall of Witnesses":state.scene==="gallery"?"The Reflection Gallery":state.scene==="clockroom"?"Clock Tower · Observation Chamber":scene?scene.name:"Elsewhen";
-  $("chapter").textContent = state.scene==="atlas"?"CHAPTER 06 · THE CARTOGRAPHER":state.scene==="witnesshall"?"CHAPTER 05 · THE MISSING WITNESS":state.scene==="gallery"?"CHAPTER 04 · REFLECTIONS":state.scene==="clockroom"?"CHAPTER 03 · THE UNWRITTEN HOUR":state.scene !== "elsewhen" ? "CHAPTER 02 · EXPEDITION" : state.completed.length === 3 ? "CHAPTER 01 · OBSERVATION" : "CHAPTER 01 · ARRIVAL";
+  $("location").textContent = state.scene==="crossing"?"The Wayfarer\'s Crossing":state.scene==="atlas"?"The Living Atlas":state.scene==="witnesshall"?"The Hall of Witnesses":state.scene==="gallery"?"The Reflection Gallery":state.scene==="clockroom"?"Clock Tower · Observation Chamber":scene?scene.name:"Elsewhen";
+  $("chapter").textContent = state.scene==="crossing"?"CHAPTER 07 · THE WAYFARER":state.scene==="atlas"?"CHAPTER 06 · THE CARTOGRAPHER":state.scene==="witnesshall"?"CHAPTER 05 · THE MISSING WITNESS":state.scene==="gallery"?"CHAPTER 04 · REFLECTIONS":state.scene==="clockroom"?"CHAPTER 03 · THE UNWRITTEN HOUR":state.scene !== "elsewhen" ? "CHAPTER 02 · EXPEDITION" : state.completed.length === 3 ? "CHAPTER 01 · OBSERVATION" : "CHAPTER 01 · ARRIVAL";
   $("progress").textContent = state.completed.length + " / 3 FRACTURES";
   $("stability-value").textContent = state.stability + "%";
   $("stability-meter").style.width = state.stability + "%";
@@ -230,6 +241,9 @@ function updateReadout() {
   const atlas=atlasSummary(state);
   $("atlas-button").textContent=atlas.available?"LIVING ATLAS · "+atlas.scannedCount+"/3 SURVEYS":"LIVING ATLAS · LOCKED";
   $("atlas-status").textContent=atlas.next;
+  const crossing=crossingSummary(state);
+  $("crossing-button").textContent=crossing.available?"WAYFARER · "+crossing.count+"/3 SURVEYS":"WAYFARER · LOCKED";
+  $("crossing-status").textContent=crossing.next;
   $("relationship-status").textContent=social.filter(p=>p.quest==="ready").length
     ?"A companion has evidence to review. Return to their home in Elsewhen."
     :social.filter(p=>p.quest==="active").length
@@ -280,9 +294,15 @@ function targetNear() {
     if(near(witnessBoard.x,witnessBoard.y,60))return {kind:"witnessBoard"};
     if(near(witnessExit.x,witnessExit.y,59))return {kind:"witnessExit"};
   }else if(state.scene==="atlas"){
+    if(crossingAvailable(state)&&near(crossingEntrance.x,crossingEntrance.y,45))return {kind:"crossingEntrance"};
     for(const beacon of atlasBeacons)if(near(beacon.x,beacon.y,57))return {kind:"atlasBeacon",item:beacon};
     if(near(atlasChart.x,atlasChart.y,58))return {kind:"atlasChart"};
     if(near(atlasExit.x,atlasExit.y,48))return {kind:"atlasExit"};
+  }else if(state.scene==="crossing"){
+    if(near(crossingArrival.x,crossingArrival.y,53))return {kind:"crossingArrival"};
+    for(const path of crossingPaths)if(near(path.x,path.y,43))return {kind:"crossingPath",item:path};
+    if(near(crossingTable.x,crossingTable.y,45))return {kind:"crossingTable"};
+    if(near(crossingExit.x,crossingExit.y,39))return {kind:"crossingExit"};
   }else{
     for(const node of expeditionNodes.filter(n=>n.id!=="core")){
       if(near(node.x,node.y,node.id==="echo"?62:64))return {kind:"stage",node};
@@ -314,10 +334,16 @@ const {showClock,inspectStation}=createClockUI({getState:()=>state,apply,showDia
 const {talkVisitor,showGalleryStatus,examineMirror,examineQuestion}=createReflectionUI({getState:()=>state,apply,showDialog,closeDialog,travel});
 const {status:showWitnessStatus,speak:speakWitness,examine:examineWitnessEvidence,board:openWitnessBoard}=createWitnessUI({getState:()=>state,apply,showDialog,closeDialog,travel});
 const {showMapmaker, dossier:showAtlas,inspectBeacon:scanAtlasBeacon,chart:openAtlasChart}=createAtlasUI({getState:()=>state,apply,showDialog,closeDialog,travel});
+const {dossier:showCrossing,inspect:studyCrossing,table:openCrossingTable,farShore:arriveCrossing}=createCrossingUI({getState:()=>state,apply,showDialog,closeDialog,travel});
 function interact() {
   if(open)return;
   const target=targetNear();
   if(!target)return;
+  if(target.kind==="crossingEntrance"){showCrossing(true);return;}
+  if(target.kind==="crossingPath"){studyCrossing(target.item.id);return;}
+  if(target.kind==="crossingTable"){openCrossingTable();return;}
+  if(target.kind==="crossingArrival"){arriveCrossing();return;}
+  if(target.kind==="crossingExit"){apply(travel(state,"atlas"));return;}
   if(target.kind==="mapmaker"){showMapmaker();return;}
   if(target.kind==="atlasEntrance"){showAtlas(true);return;}
   if(target.kind==="atlasBeacon"){scanAtlasBeacon(target.item.id);return;}
@@ -390,6 +416,11 @@ function interact() {
 function prompt() {
   const target=targetNear();
   const message = !target ? "Explore with WASD / arrows, E to interact, G for Gen.E.Wrist." :
+    target.kind === "crossingEntrance" ? "E · ENTER THE WAYFARER'S CROSSING" :
+    target.kind === "crossingPath" ? "E · STUDY " + target.item.name.toUpperCase() :
+    target.kind === "crossingTable" ? "E · CHOOSE THE BRIDGE" :
+    target.kind === "crossingArrival" ? "E · REACH THE FAR SHORE" :
+    target.kind === "crossingExit" ? "E · RETURN TO THE LIVING ATLAS" :
     target.kind === "mapmaker" ? "E · SPEAK WITH MERA" :
     target.kind === "atlasEntrance" ? "E · ENTER THE LIVING ATLAS" :
     target.kind === "atlasBeacon" ? "E · SURVEY " + target.item.name.toUpperCase() :
@@ -447,7 +478,7 @@ function frame(t) {
     moving=Boolean(dx||dy);
     if(dx!==0)facing=dx<0?"left":"right";
     const lastX=state.x,lastY=state.y;
-    const next=stepPosition(state.scene,lastX,lastY,dx,dy,205*dt);
+    const next=stepPosition(state.scene,lastX,lastY,dx,dy,205*dt,state);
     state.x=next.x;state.y=next.y;
     // A tap on an unreachable building must not keep the player walking forever.
     if(clickDestination&&moving&&Math.hypot(lastX-state.x,lastY-state.y)<.12)clickDestination=null;
@@ -500,6 +531,7 @@ $("clock-button").addEventListener("click",()=>showClock(false));
 $("reflection-button").addEventListener("click",()=>showGalleryStatus(false));
 $("witness-button").addEventListener("click",()=>showWitnessStatus(false));
 $("atlas-button").addEventListener("click",()=>showAtlas(false));
+$("crossing-button").addEventListener("click",()=>showCrossing(false));
 $("squad-button").addEventListener("click",manageSquad);
 $("close-dialog").addEventListener("click",closeDialog);
 $("reset-button").addEventListener("click",()=>{

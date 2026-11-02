@@ -83,6 +83,16 @@ This file intentionally avoids late-story revelations. **Please keep major twist
 - [x] Tests for migration, gating, route ordering, retry safety, final decisions, coordinates and spoiler hygiene.
 - [ ] Larger explorable route network and systemic world navigation (future work).
 
+## Rung 10: The Wayfarer's Crossing
+- [x] New explorable map reached through the completed Living Atlas.
+- [x] Three original bridge surveys, with narrative interpretations and once-only insight rewards.
+- [x] Real map collision: a full-width river is impassable except through one player-selected bridge.
+- [x] Route choice persists across leave/re-enter and reload; other bridges stay sealed.
+- [x] Reaching the northern shore physically unlocks a three-way final decision.
+- [x] Wayfarer's Gen.E.Wrist dossier, objective hints, town visual consequences and Mera's follow-up reaction.
+- [x] Backward-compatible saved state, collision tests and deterministic progression tests.
+- [ ] Larger nonlinear traversal network, hazards and optional movement abilities (future rungs).
+
 ## Engineering direction
 - Keep deterministic, separately tested game state.
 - Preserve the canonical Gen.E.Wrist 3/6/9 interaction model when integrating the shared project later.

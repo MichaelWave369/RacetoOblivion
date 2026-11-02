@@ -1,3 +1,4 @@
+import { crossingSummary } from "./crossing-rules.js";
 import {mapmaker,atlasBeacons,atlasRoute,atlasEndings,atlasSummary,
   meetMapmaker,scanBeacon,plotStep,finishAtlas} from "./atlas-rules.js";
 
@@ -7,7 +8,9 @@ export function createAtlasUI({getState,apply,showDialog,closeDialog,travel}){
     const before=getState(),wasMet=atlasSummary(before).met;
     if(!wasMet)apply(meetMapmaker(before));
     const result=atlasSummary(getState());
-    showDialog(mapmaker.name,wasMet?mapmaker.after:mapmaker.greeting+
+    const passage=crossingSummary(getState());
+    showDialog(mapmaker.name,passage.complete?
+      "You walked one of my impossible roads and returned with a record others can use. A map becomes a kindness when it tells people what to expect.":wasMet?mapmaker.after:mapmaker.greeting+
       "\n\nNew acquaintance · Insight +1",[
       {label:"Ask about her changing roads",action:()=>{
         showDialog("An Impossible Road",

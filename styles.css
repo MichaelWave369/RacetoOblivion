@@ -100,3 +100,13 @@ padding:10px 8px;font:11px Consolas,monospace;letter-spacing:.025em}
 .atlas-panel button:hover{background:#435862}
 .atlas-panel button:focus-visible{outline:3px solid #ffefba;outline-offset:2px}
 @media(max-width:1100px){.atlas-panel{grid-column:1/-1}}
+
+/* Rung 10: a persistent route dossier for the first physically gated map. */
+.crossing-panel{padding:14px 0;border-bottom:1px solid #52637a}
+.crossing-panel h3{font:11px Consolas,monospace;letter-spacing:.14em;color:#bfe5d5;margin:0 0 8px}
+.crossing-panel p{font:12px/1.5 Trebuchet MS,Arial,sans-serif;color:#b9d0ca;margin:0 0 11px}
+.crossing-panel button{min-height:43px;width:100%;border:1px solid #95c9b4;background:#274248;
+  color:#def5e7;padding:10px 8px;font:11px Consolas,monospace;letter-spacing:.03em}
+.crossing-panel button:hover{background:#355660}
+.crossing-panel button:focus-visible{outline:3px solid #ffedb8;outline-offset:2px}
+@media(max-width:1100px){.crossing-panel{grid-column:1/-1}}
