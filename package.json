@@ -1,11 +1,11 @@
 {
   "name": "race-to-oblivion",
   "private": true,
-  "version": "0.7.0",
+  "version": "0.8.0",
   "type": "module",
   "description": "A dependency-free, browser-playable science-fantasy RPG prototype",
   "scripts": {
     "test": "node --test",
-    "check": "node --check src/audio.js && node --check src/content.js && node --check src/navigation.js && node --check src/visuals.js && node --check src/main.js && node --check src/state.js && node --check src/expeditions.js && node --check src/expedition-art.js && node --check src/expedition-rules.js && node --check src/expedition-ui.js && node --check src/field-records.js && node --check src/echo-tactics.js && node --check src/relationships.js && node --check src/social-ui.js && node --check src/clock-rules.js && node --check src/clockroom-art.js && node --check src/clock-ui.js && node --check src/reflection-rules.js && node --check src/reflection-ui.js && node --check src/reflection-art.js"
+    "check": "node --check src/audio.js && node --check src/content.js && node --check src/navigation.js && node --check src/visuals.js && node --check src/main.js && node --check src/state.js && node --check src/expeditions.js && node --check src/expedition-art.js && node --check src/expedition-rules.js && node --check src/expedition-ui.js && node --check src/field-records.js && node --check src/echo-tactics.js && node --check src/relationships.js && node --check src/social-ui.js && node --check src/clock-rules.js && node --check src/clockroom-art.js && node --check src/clock-ui.js && node --check src/reflection-rules.js && node --check src/reflection-ui.js && node --check src/reflection-art.js && node --check src/witness-rules.js && node --check src/witness-ui.js && node --check src/witness-art.js"
   }
 }

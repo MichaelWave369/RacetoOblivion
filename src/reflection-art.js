@@ -1,4 +1,5 @@
 import {reflectionMirrors,reflectionSummary,galleryCore,galleryExit} from "./reflection-rules.js";
+import { witnessAvailable, witnessEntrance, witnessSummary } from "./witness-rules.js";
 const TAU=Math.PI*2;
 function disc(c,x,y,r,fill,stroke=null,width=1){
   c.beginPath();c.arc(x,y,r,0,TAU);c.fillStyle=fill;c.fill();
@@ -66,5 +67,12 @@ export function drawReflectionGallery(c,state,t){
   disc(c,galleryExit.x,galleryExit.y,27,"#182e40","#d7b37d",3);
   label(c,"↶",galleryExit.x,galleryExit.y,22,"#f1d3a1");
   label(c,"RETURN TO THE CLOCK",galleryExit.x,galleryExit.y+41,11,"#f3ddb7");
+  if(witnessAvailable(state)){
+    const complete=witnessSummary(state).complete;
+    const glow=complete?"#a2f6cf":"#e4b9ee";
+    disc(c,witnessEntrance.x,witnessEntrance.y,25+Math.sin(t/660)*3,glow+"22",glow,3);
+    label(c,complete?"✓":"✧",witnessEntrance.x,witnessEntrance.y,21,glow);
+    label(c,complete?"CASE RECORDED":"HALL OF WITNESSES",witnessEntrance.x,witnessEntrance.y-40,11,glow);
+  }
   label(c,"MIRRORS "+count+" / 3",480,127,13,"#c9d6dc");
 }

@@ -62,6 +62,16 @@ This file intentionally avoids late-story revelations. **Please keep major twist
 - [x] Tests for gallery gating, independent outcomes, save migration, validation and idempotent rewards.
 - [ ] Fully cinematic scenes, advanced dialogue trees and new recruit combat abilities (future rungs).
 
+## Rung 8: The Missing Witness
+- [x] A new Hall of Witnesses unlocked after completing the Reflection Gallery.
+- [x] Three conversational testimony stations and two physical clues.
+- [x] Evidence-backed hypothesis comparison; incorrect accusations are rejected without soft-locking or repeat penalties.
+- [x] Three persistent case resolutions with different equilibrium and insight outcomes.
+- [x] Original Canvas scene and progression markers, saved case-file panel and contextual objectives.
+- [x] Same local save key with migration for Rung 1–7 players and strict validation.
+- [x] Regression tests for gating, evidence, deduction, replay safety, old saves and interaction coordinates.
+- [ ] Deeper witness dialogue trees, multi-scene detective exploration and voiced performances (future work).
+
 ## Engineering direction
 - Keep deterministic, separately tested game state.
 - Preserve the canonical Gen.E.Wrist 3/6/9 interaction model when integrating the shared project later.

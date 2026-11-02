@@ -3,6 +3,7 @@ import { visitors, conclave, trustFor } from "./relationships.js";
 import { drawExpeditionArt } from "./expedition-art.js";
 import { drawClockRoom } from "./clockroom-art.js";
 import { drawReflectionGallery } from "./reflection-art.js";
+import { drawWitnessHall } from "./witness-art.js";
 import { galleryAvailable, unwrittenVisitor, reflectionSummary } from "./reflection-rules.js";
 import { clockSummary } from "./clock-rules.js";
 
@@ -335,6 +336,7 @@ export function drawWorld(ctx,state,t,{moving=false,facing="right"}={}){
   if(state.scene==="elsewhen")town(ctx,state,t);
   else if(state.scene==="clockroom")drawClockRoom(ctx,state,t);
   else if(state.scene==="gallery")drawReflectionGallery(ctx,state,t);
+  else if(state.scene==="witnesshall")drawWitnessHall(ctx,state,t);
   else {
     const world=worlds.find((entry)=>entry.id===state.scene);
     if(world){worldBackdrop(ctx,world,t,state);drawExpeditionArt(ctx,state,t);}

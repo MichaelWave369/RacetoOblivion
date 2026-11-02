@@ -80,3 +80,13 @@ color:#efe2ff;padding:10px 8px;font:11px Consolas,monospace;letter-spacing:.025e
 .reflection-panel button:hover{background:#3e415c}
 .reflection-panel button:focus-visible{outline:3px solid #ffe9ba;outline-offset:2px}
 @media(max-width:1100px){.reflection-panel{grid-column:1/-1}}
+
+/* Rung 8: read-only case status and earned entry into the investigation. */
+.witness-panel{padding:14px 0;border-bottom:1px solid #52637a}
+.witness-panel h3{font:11px Consolas,monospace;letter-spacing:.14em;color:#d6e2c2;margin:0 0 8px}
+.witness-panel p{font:12px/1.5 Trebuchet MS,Arial,sans-serif;color:#b7cbca;margin:0 0 11px}
+.witness-panel button{width:100%;min-height:43px;border:1px solid #96bba7;background:#263c3d;color:#e6f7dc;
+padding:10px 8px;font:11px Consolas,monospace;letter-spacing:.025em}
+.witness-panel button:hover{background:#355358}
+.witness-panel button:focus-visible{outline:3px solid #ffefba;outline-offset:2px}
+@media(max-width:1100px){.witness-panel{grid-column:1/-1}}

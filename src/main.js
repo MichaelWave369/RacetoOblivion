@@ -13,6 +13,8 @@ import { clockFragments, clockStations, clockSummary, eligibleClockFragment, rec
 import { createClockUI } from "./clock-ui.js";
 import { galleryAvailable, reflectionSummary, reflectionMirrors, unwrittenVisitor, galleryEntrance, galleryExit, galleryCore } from "./reflection-rules.js";
 import { createReflectionUI } from "./reflection-ui.js";
+import { witnessAvailable, witnessSummary, witnessEntrance, witnessExit, testimony, evidence, witnessBoard } from "./witness-rules.js";
+import { createWitnessUI } from "./witness-ui.js";
 
 const canvas = document.querySelector("#world");
 const ctx = canvas.getContext("2d");
@@ -72,8 +74,11 @@ function updateWristIntel() {
       :"Recovered "+summary.count+" of "+totalRecords+" field records. Follow the small amber signals on expedition maps.";
     return;
   }
+  if(state.scene==="witnesshall"){
+    $("wrist-intel").textContent=witnessSummary(state).next;return;
+  }
   if(state.scene==="gallery"){
-    $("wrist-intel").textContent=reflectionSummary(state).next;return;
+    $("wrist-intel").textContent=witnessAvailable(state)?witnessSummary(state).next:reflectionSummary(state).next;return;
   }
   if(state.scene==="clockroom"){
     $("wrist-intel").textContent=galleryAvailable(state)?reflectionSummary(state).next:clockSummary(state).next;return;
@@ -95,8 +100,11 @@ function updateWristIntel() {
   }
 }
 function updateQuest() {
+  if(state.scene==="witnesshall"){
+    $("quest-status").textContent=witnessSummary(state).next;return;
+  }
   if(state.scene==="gallery"){
-    $("quest-status").textContent=reflectionSummary(state).next;return;
+    $("quest-status").textContent=witnessAvailable(state)?witnessSummary(state).next:reflectionSummary(state).next;return;
   }
   if(state.scene==="clockroom"){
     $("quest-status").textContent=galleryAvailable(state)? "A new doorway is open. Find the Reflection Gallery." : "Observe the three instruments of the unwritten hour.";return;
@@ -107,7 +115,10 @@ function updateQuest() {
   }
   const notRecruited=thinkers.filter(p=>!state.recruits.includes(p.id));
   const unresolved=worlds.filter(w=>!state.completed.includes(w.id));
-  if(galleryAvailable(state)){
+  if(witnessAvailable(state)){
+    $("quest-status").textContent=witnessSummary(state).complete?"Return to Elsewhen and discuss the case with Schrödinger.":"A new doorway has opened in the Reflection Gallery. Find the Hall of Witnesses.";
+  }
+  else if(galleryAvailable(state)){
     $("quest-status").textContent=reflectionSummary(state).complete?"Speak with Schrödinger about the investigation.":"The clock tower has opened another chamber. Return there or speak with the visiting physicist.";
   }
   else if(clockSummary(state).solved){$("quest-status").textContent=clockSummary(state).roomComplete?"The unwritten hour has been observed. Explore other mysteries.":"Enter the clock tower and explore its observation chamber.";} 
@@ -186,8 +197,8 @@ function exploreRecord(record){
 }
 function updateReadout() {
   const scene = worlds.find((world) => world.id === state.scene);
-  $("location").textContent = state.scene==="gallery"?"The Reflection Gallery":state.scene==="clockroom"?"Clock Tower · Observation Chamber":scene?scene.name:"Elsewhen";
-  $("chapter").textContent = state.scene==="gallery"?"CHAPTER 04 · REFLECTIONS":state.scene==="clockroom"?"CHAPTER 03 · THE UNWRITTEN HOUR":state.scene !== "elsewhen" ? "CHAPTER 02 · EXPEDITION" : state.completed.length === 3 ? "CHAPTER 01 · OBSERVATION" : "CHAPTER 01 · ARRIVAL";
+  $("location").textContent = state.scene==="witnesshall"?"The Hall of Witnesses":state.scene==="gallery"?"The Reflection Gallery":state.scene==="clockroom"?"Clock Tower · Observation Chamber":scene?scene.name:"Elsewhen";
+  $("chapter").textContent = state.scene==="witnesshall"?"CHAPTER 05 · THE MISSING WITNESS":state.scene==="gallery"?"CHAPTER 04 · REFLECTIONS":state.scene==="clockroom"?"CHAPTER 03 · THE UNWRITTEN HOUR":state.scene !== "elsewhen" ? "CHAPTER 02 · EXPEDITION" : state.completed.length === 3 ? "CHAPTER 01 · OBSERVATION" : "CHAPTER 01 · ARRIVAL";
   $("progress").textContent = state.completed.length + " / 3 FRACTURES";
   $("stability-value").textContent = state.stability + "%";
   $("stability-meter").style.width = state.stability + "%";
@@ -202,6 +213,9 @@ function updateReadout() {
   const gallery=reflectionSummary(state);
   $("reflection-button").textContent=gallery.available?"REFLECTION GALLERY · "+gallery.mirrorCount+" / 3":"REFLECTION GALLERY · LOCKED";
   $("reflection-status").textContent=gallery.next;
+  const caseFile=witnessSummary(state);
+  $("witness-button").textContent=caseFile.unlocked?"MISSING WITNESS · "+caseFile.count+" / "+caseFile.total:"MISSING WITNESS · LOCKED";
+  $("witness-status").textContent=caseFile.next;
   $("relationship-status").textContent=social.filter(p=>p.quest==="ready").length
     ?"A companion has evidence to review. Return to their home in Elsewhen."
     :social.filter(p=>p.quest==="active").length
@@ -240,9 +254,15 @@ function targetNear() {
     for(const station of clockStations)if(near(station.x,station.y,63))return {kind:"clockStation",item:station};
     if(near(480,503,67))return {kind:"clockExit"};
   }else if(state.scene==="gallery"){
+    if(witnessAvailable(state)&&near(witnessEntrance.x,witnessEntrance.y,51))return {kind:"witnessEntrance"};
     for(const mirror of reflectionMirrors)if(near(mirror.x,mirror.y,59))return {kind:"reflectionMirror",item:mirror};
     if(near(galleryCore.x,galleryCore.y,58))return {kind:"reflectionCore"};
     if(near(galleryExit.x,galleryExit.y,62))return {kind:"galleryExit"};
+  }else if(state.scene==="witnesshall"){
+    for(const person of testimony)if(near(person.x,person.y,58))return {kind:"witnessPerson",item:person};
+    for(const item of evidence)if(near(item.x,item.y,56))return {kind:"witnessEvidence",item};
+    if(near(witnessBoard.x,witnessBoard.y,60))return {kind:"witnessBoard"};
+    if(near(witnessExit.x,witnessExit.y,59))return {kind:"witnessExit"};
   }else{
     for(const node of expeditionNodes.filter(n=>n.id!=="core")){
       if(near(node.x,node.y,node.id==="echo"?62:64))return {kind:"stage",node};
@@ -272,10 +292,16 @@ function inspectLandmark(item) {
 const {manageSquad,exploreStage}=createExpeditionUI({getState:()=>state,apply,showDialog,closeDialog});
 const {showClock,inspectStation}=createClockUI({getState:()=>state,apply,showDialog,closeDialog,travel});
 const {talkVisitor,showGalleryStatus,examineMirror,examineQuestion}=createReflectionUI({getState:()=>state,apply,showDialog,closeDialog,travel});
+const {status:showWitnessStatus,speak:speakWitness,examine:examineWitnessEvidence,board:openWitnessBoard}=createWitnessUI({getState:()=>state,apply,showDialog,closeDialog,travel});
 function interact() {
   if(open)return;
   const target=targetNear();
   if(!target)return;
+  if(target.kind==="witnessEntrance"){showWitnessStatus(true);return;}
+  if(target.kind==="witnessPerson"){speakWitness(target.item.id);return;}
+  if(target.kind==="witnessEvidence"){examineWitnessEvidence(target.item.id);return;}
+  if(target.kind==="witnessBoard"){openWitnessBoard();return;}
+  if(target.kind==="witnessExit"){apply(travel(state,"gallery"));return;}
   if(target.kind==="unwrittenVisitor"){talkVisitor();return;}
   if(target.kind==="galleryEntrance"){showGalleryStatus(true);return;}
   if(target.kind==="reflectionMirror"){examineMirror(target.item.id);return;}
@@ -338,6 +364,11 @@ function interact() {
 function prompt() {
   const target=targetNear();
   const message = !target ? "Explore with WASD / arrows, E to interact, G for Gen.E.Wrist." :
+    target.kind === "witnessEntrance" ? "E · ENTER THE HALL OF WITNESSES" :
+    target.kind === "witnessPerson" ? "E · HEAR " + target.item.name.toUpperCase() :
+    target.kind === "witnessEvidence" ? "E · EXAMINE " + target.item.name.toUpperCase() :
+    target.kind === "witnessBoard" ? "E · STUDY THE CONTRADICTION BOARD" :
+    target.kind === "witnessExit" ? "E · RETURN TO THE REFLECTION GALLERY" :
     target.kind === "unwrittenVisitor" ? "E · SPEAK WITH ERWIN SCHRÖDINGER" :
     target.kind === "galleryEntrance" ? "E · ENTER THE REFLECTION GALLERY" :
     target.kind === "reflectionMirror" ? "E · OBSERVE " + target.item.name.toUpperCase() :
@@ -436,6 +467,7 @@ $("archive-button").addEventListener("click",showArchive);
 $("relationship-button").addEventListener("click",showRelationships);
 $("clock-button").addEventListener("click",()=>showClock(false));
 $("reflection-button").addEventListener("click",()=>showGalleryStatus(false));
+$("witness-button").addEventListener("click",()=>showWitnessStatus(false));
 $("squad-button").addEventListener("click",manageSquad);
 $("close-dialog").addEventListener("click",closeDialog);
 $("reset-button").addEventListener("click",()=>{
