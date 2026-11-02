@@ -16,6 +16,7 @@ Open **index.html** in a modern browser, or publish the repository as a static s
 - **Journal:** J or the Journal button.
 - **Gamepad:** Left stick/D-pad to move, A to interact, B for journal, Y to cycle wrist modes. Controller support is best-effort across browsers.
 - **Options:** Opt-in audio, reduce motion and high contrast in the Gen.E.Wrist panel.
+- **The Cartographer's Paradox:** Finish the Missing Witness case and return to the Hall of Witnesses to find the Living Atlas entrance. Survey three beacons, connect the route in the order their clues imply, and choose how to preserve the resulting chart. Wrong proposals can be retried without losing surveys. Meet Mera, Elsewhen's cartographer, and reread findings from the Gen.E.Wrist.
 - **The Missing Witness:** After recording your Reflection Gallery conclusion, look for the new doorway near the far end of the gallery. Interview three witnesses, inspect two physical traces and compare them on the Contradiction Board. An unsupported hypothesis costs equilibrium once, but never locks out the investigation. Record one of three case resolutions and revisit it in the Gen.E.Wrist dossier.
 - **The Unwritten Visitor:** After finishing the clock tower's three instrument observations, enter the Reflection Gallery through its newly opened door. Explore three contradictory memories, decide what to preserve and record a final conclusion. A visiting physicist arrives in Elsewhen carrying a curious wooden case. Findings, choices and conversations persist without a new save file.
 - **Clock Tower mystery:** Stabilize a realm, then return to the corresponding Elsewhen landmark to recover an inscription. Collect three and align the tower's glyphs in the order implied by the clues. Explore the newly unlocked observation room and investigate its three instruments. All chapter progress is saved locally.
@@ -35,7 +36,7 @@ Requires Node.js 20 or newer for tests only. No install step or third-party pack
 
 See [the spoiler-safe public roadmap](docs/ROADMAP.md).
 
-**Status:** Rung 8, The Missing Witness prototype. This is an early browser-playable slice, not a finished campaign. This is an early browser-playable slice, not a full campaign.
+**Status:** Rung 9, The Cartographer's Paradox prototype. This is an early browser-playable slice, not a finished campaign.
 
 ## Creative and licensing notes
 
