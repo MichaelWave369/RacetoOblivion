@@ -1,4 +1,5 @@
 import {atlasBeacons,atlasChart,atlasExit,atlasRoute,atlasSummary} from "./atlas-rules.js";
+import { crossingEntrance, crossingSummary, crossingAvailable } from "./crossing-rules.js";
 const TAU=Math.PI*2;
 function disk(c,x,y,r,fill,stroke=null,w=1){
   c.beginPath();c.arc(x,y,r,0,TAU);c.fillStyle=fill;c.fill();
@@ -65,4 +66,11 @@ export function drawLivingAtlas(c,state,t){
   title(c,"A route is not a fact until its observations are known",480,82,12,"#c7cece");
   title(c,"OBSERVATIONS "+data.scannedCount+"/3 · CONNECTED "+data.route.length+"/3",480,125,12,data.complete?"#b9efc9":"#d7d0bf");
   if(data.complete)title(c,"ROUTE RECORDED",480,455,13,"#b7f2ce");
+  if(crossingAvailable(state)){
+    const complete=crossingSummary(state).complete;
+    const glow=complete?"#abf2ce":"#ebcb91";
+    disk(c,crossingEntrance.x,crossingEntrance.y,27+Math.sin(t/700)*2,glow+"22",glow,3);
+    title(c,complete?"✓":"✧",crossingEntrance.x,crossingEntrance.y,21,glow);
+    title(c,complete?"CROSSING RECORDED":"WAYFARER'S CROSSING",crossingEntrance.x,crossingEntrance.y-37,11,glow);
+  }
 }
