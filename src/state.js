@@ -2,6 +2,7 @@ import { thinkers, worlds } from "./content.js";
 import { validateExpeditions, validateSquad } from "./expedition-rules.js";
 import { validateRecords } from "./field-records.js";
 import { initialSocial, validateSocial } from "./relationships.js";
+import { initialClock, validateClock } from "./clock-rules.js";
 
 export const SAVE_KEY = "rto-interval-rung01-v1";
 
@@ -22,6 +23,7 @@ export function initialState() {
     expeditions: {},
     records: [],
     social: initialSocial(),
+    clock: initialClock(),
     log: ["Arrival: Elsewhen lies somewhere in The Interval."],
     introSeen: false
   };
@@ -53,14 +55,18 @@ export function observe(state, landmarkId) {
     log: [...state.log, "Discovered a detail at " + landmarkId + "."] };
 }
 
-export function travel(state, scene) {
-  if (scene !== "elsewhen" && !worlds.some((world) => world.id === scene)) return state;
+export function travel(state,scene){
+  const allowed=scene==="elsewhen" || worlds.some(w=>w.id===scene) ||
+    (scene==="clockroom" && validateClock(state.clock).solved);
+  if(!allowed)return state;
+  const name=scene==="elsewhen"?"Elsewhen":scene==="clockroom"?
+    "Clock Tower Observation Chamber":worlds.find(w=>w.id===scene).name;
   return {
     ...state,
     scene,
-    x: 480,
-    y: scene === "elsewhen" ? 454 : 468,
-    log: [...state.log, scene === "elsewhen" ? "Returned to Elsewhen." : "Entered " + worlds.find((world) => world.id === scene).name + "."]
+    x:480,
+    y:scene==="elsewhen"?454:scene==="clockroom"?480:468,
+    log:[...state.log,"Entered "+name+"."].slice(-50)
   };
 }
 
@@ -86,7 +92,8 @@ export function restoreState(raw) {
   const validWorlds = worlds.map((item) => item.id);
   return {
     ...base,
-    scene: raw.scene === "elsewhen" || validWorlds.includes(raw.scene) ? raw.scene : "elsewhen",
+    scene: raw.scene === "elsewhen" || validWorlds.includes(raw.scene) ||
+      (raw.scene==="clockroom" && validateClock(raw.clock).solved) ? raw.scene : "elsewhen",
     x: Number.isFinite(raw.x) ? clamp(raw.x, 35, 925) : base.x,
     y: Number.isFinite(raw.y) ? clamp(raw.y, 42, 525) : base.y,
     recruits: [...new Set(raw.recruits.filter((id) => validRecruits.includes(id)))],
@@ -98,6 +105,7 @@ export function restoreState(raw) {
     expeditions: validateExpeditions(raw.expeditions),
     records: validateRecords(raw.records),
     social: validateSocial(raw.social),
+    clock: validateClock(raw.clock),
     stability: Number.isFinite(raw.stability) ? clamp(raw.stability, 0, 100) : base.stability,
     insight: Number.isFinite(raw.insight) ? clamp(raw.insight, 0, 100000) : 0,
     log: Array.isArray(raw.log) ? raw.log.filter((entry) => typeof entry === "string").slice(-50) : base.log,

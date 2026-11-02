@@ -9,6 +9,8 @@ import { createExpeditionUI } from "./expedition-ui.js";
 import { recordsForWorld, collectRecord, archiveSummary, totalRecords } from "./field-records.js";
 import { visitors, conclave, socialSummary, validateSocial } from "./relationships.js";
 import { createSocialUI } from "./social-ui.js";
+import { clockFragments, clockStations, clockSummary, eligibleClockFragment, recoverClockFragment } from "./clock-rules.js";
+import { createClockUI } from "./clock-ui.js";
 
 const canvas = document.querySelector("#world");
 const ctx = canvas.getContext("2d");
@@ -68,6 +70,9 @@ function updateWristIntel() {
       :"Recovered "+summary.count+" of "+totalRecords+" field records. Follow the small amber signals on expedition maps.";
     return;
   }
+  if(state.scene==="clockroom"){
+    $("wrist-intel").textContent=clockSummary(state).next;return;
+  }
   if(state.scene!=="elsewhen"){
     $("wrist-intel").textContent=nextObjective(state,state.scene);
     return;
@@ -85,13 +90,17 @@ function updateWristIntel() {
   }
 }
 function updateQuest() {
+  if(state.scene==="clockroom"){
+    $("quest-status").textContent="Observe the three instruments of the unwritten hour.";return;
+  }
   if(state.scene!=="elsewhen"){
     $("quest-status").textContent=nextObjective(state,state.scene);
     return;
   }
   const notRecruited=thinkers.filter(p=>!state.recruits.includes(p.id));
   const unresolved=worlds.filter(w=>!state.completed.includes(w.id));
-  if(state.completed.length===worlds.length)$("quest-status").textContent="Visit the Conclave and help the minds compare what you discovered.";
+  if(clockSummary(state).solved){$("quest-status").textContent=clockSummary(state).roomComplete?"The unwritten hour has been observed. Explore other mysteries.":"Enter the clock tower and explore its observation chamber.";} 
+  else if(state.completed.length===worlds.length)$("quest-status").textContent="Trace the inscriptions in the fountain, atelier and observatory. Then visit the clock tower.";
   else if(notRecruited.length)$("quest-status").textContent="Meet "+notRecruited.map(p=>p.name).join(", ")+".";
   else $("quest-status").textContent="Investigate "+unresolved.map(w=>w.name).join(", ")+".";
 }
@@ -166,8 +175,8 @@ function exploreRecord(record){
 }
 function updateReadout() {
   const scene = worlds.find((world) => world.id === state.scene);
-  $("location").textContent = scene ? scene.name : "Elsewhen";
-  $("chapter").textContent = state.scene !== "elsewhen" ? "CHAPTER 02 · EXPEDITION" : state.completed.length === 3 ? "CHAPTER 01 · OBSERVATION" : "CHAPTER 01 · ARRIVAL";
+  $("location").textContent = state.scene==="clockroom"?"Clock Tower · Observation Chamber":scene?scene.name:"Elsewhen";
+  $("chapter").textContent = state.scene==="clockroom"?"CHAPTER 03 · THE UNWRITTEN HOUR":state.scene !== "elsewhen" ? "CHAPTER 02 · EXPEDITION" : state.completed.length === 3 ? "CHAPTER 01 · OBSERVATION" : "CHAPTER 01 · ARRIVAL";
   $("progress").textContent = state.completed.length + " / 3 FRACTURES";
   $("stability-value").textContent = state.stability + "%";
   $("stability-meter").style.width = state.stability + "%";
@@ -177,6 +186,8 @@ function updateReadout() {
   $("archive-button").textContent="FIELD ARCHIVE · "+archiveSummary(state.records).count+" / "+totalRecords;
   const social=socialSummary(state);
   $("relationship-button").textContent="THE MINDS · "+social.filter(p=>p.quest==="completed").length+" / 3 INQUIRIES";
+  const clock=clockSummary(state);
+  $("clock-button").textContent=clock.solved?"CLOCK TOWER · "+clock.stations.length+" / 3 OBSERVATIONS":"CLOCK TOWER · "+clock.fragmentsFound+" / 3 INSCRIPTIONS";
   $("relationship-status").textContent=social.filter(p=>p.quest==="ready").length
     ?"A companion has evidence to review. Return to their home in Elsewhen."
     :social.filter(p=>p.quest==="active").length
@@ -203,11 +214,15 @@ function updateReadout() {
 function near(x, y, radius = 66) { return Math.hypot(state.x - x, state.y - y) < radius; }
 function targetNear() {
   if(state.scene==="elsewhen"){
+    if(near(485,249,34))return {kind:"tower"};
     for(const person of thinkers)if(near(person.x,person.y,65))return {kind:"person",item:person};
     for(const world of worlds)if(near(world.x,world.y,76))return {kind:"portal",item:world};
     for(const visitor of visitors)if(near(visitor.x,visitor.y,57))return {kind:"visitor",item:visitor};
     if(near(conclave.x,conclave.y,62))return {kind:"conclave"};
     for(const landmark of landmarks)if(near(landmark.x,landmark.y,54))return {kind:"landmark",item:landmark};
+  }else if(state.scene==="clockroom"){
+    for(const station of clockStations)if(near(station.x,station.y,63))return {kind:"clockStation",item:station};
+    if(near(480,503,67))return {kind:"clockExit"};
   }else{
     for(const node of expeditionNodes.filter(n=>n.id!=="core")){
       if(near(node.x,node.y,node.id==="echo"?62:64))return {kind:"stage",node};
@@ -224,14 +239,25 @@ const {talkToThinker,greetVisitor,showRelationships,showConclave}=createSocialUI
 function inspectLandmark(item) {
   const discovered=state.observed.includes(item.id);
   const after=state.completed.length?item.after:item.description;
-  apply(observe(state,item.id));
-  showDialog(item.name,after+"\n\n"+(discovered?"You recognize this place.":"NEW FIELD NOTE · Insight +1"));
+  let next=observe(state,item.id);
+  const fragment=clockFragments.find(f=>f.anchor===item.id);
+  const eligible=eligibleClockFragment(next,item.id);
+  if(eligible)next=recoverClockFragment(next,item.id);
+  apply(next);
+  showDialog(item.name,after+"\n\n"+
+    (discovered?"You recognize this place.":"NEW FIELD NOTE · Insight +1")+
+    (eligible&&fragment?"\n\nNEW CLOCK INSCRIPTION · "+fragment.name+
+    "\n"+fragment.clue+"\n\nAdditional insight +1.":""));
 }
 const {manageSquad,exploreStage}=createExpeditionUI({getState:()=>state,apply,showDialog,closeDialog});
+const {showClock,inspectStation}=createClockUI({getState:()=>state,apply,showDialog,closeDialog,travel});
 function interact() {
   if(open)return;
   const target=targetNear();
   if(!target)return;
+  if(target.kind==="tower"){showClock(true);return;}
+  if(target.kind==="clockStation"){inspectStation(target.item);return;}
+  if(target.kind==="clockExit"){apply(travel(state,"elsewhen"));return;}
   if(target.kind==="person"){talkToThinker(target.item);return;}
   if(target.kind==="visitor"){greetVisitor(target.item);return;}
   if(target.kind==="conclave"){showConclave();return;}
@@ -286,6 +312,9 @@ function interact() {
 function prompt() {
   const target=targetNear();
   const message = !target ? "Explore with WASD / arrows, E to interact, G for Gen.E.Wrist." :
+    target.kind === "tower" ? "E · EXAMINE THE CLOCK TOWER" :
+    target.kind === "clockStation" ? "E · STUDY " + target.item.name.toUpperCase() :
+    target.kind === "clockExit" ? "E · RETURN TO ELSEWHEN" :
     target.kind === "person" ? "E · SPEAK WITH " + target.item.name.toUpperCase() :
     target.kind === "visitor" ? "E · MEET " + target.item.name.toUpperCase() :
     target.kind === "conclave" ? "E · ENTER THE CONCLAVE" :
@@ -374,6 +403,7 @@ $("touch-interact").addEventListener("click",interact);
 $("journal-button").addEventListener("click",showJournal);
 $("archive-button").addEventListener("click",showArchive);
 $("relationship-button").addEventListener("click",showRelationships);
+$("clock-button").addEventListener("click",()=>showClock(false));
 $("squad-button").addEventListener("click",manageSquad);
 $("close-dialog").addEventListener("click",closeDialog);
 $("reset-button").addEventListener("click",()=>{
